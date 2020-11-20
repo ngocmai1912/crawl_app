@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Crawl</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="success">Successfully</string>
+    <string name="fail">Failed</string>
+    <string name="message">MessageReceiver</string>
+    <string name="_app_name">App name</string>
+    <string name="app_bundle">App bundle</string>
+    <string name="create_time">Create time</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
+
+</resources>
