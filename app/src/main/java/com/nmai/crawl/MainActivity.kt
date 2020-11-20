@@ -3,6 +3,7 @@ package com.nmai.crawl
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.*
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.provider.Settings
@@ -10,11 +11,14 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nmai.crawl.model.Data
 import com.nmai.crawl.model.NotificationData
+import com.nmai.crawl.service.CrawlNotificationService
 import java.util.*
+import java.util.jar.Manifest
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,10 +35,14 @@ class MainActivity : AppCompatActivity() {
         val enabledListeners = Settings.Secure.getString(
             this.getContentResolver(),
             "enabled_notification_listeners"
-        ).toBoolean()
-        if(enabledListeners) startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+        )
+        var str = CrawlNotificationService().javaClass.toString()
+        if(!enabledListeners.contains(str.subSequence(6, str.length)))
+            startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+
+
         recy = findViewById(R.id.list_notification)
-        adapter = NotificationAdapter(this,{})
+        adapter = NotificationAdapter(this)
         recy.apply {
             adapter = this@MainActivity.adapter
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -42,27 +50,14 @@ class MainActivity : AppCompatActivity() {
         Thread{
             adapter.addAll(Data.getAll())
         }.start()
-        adapter.onClick = {
-            val builder = AlertDialog.Builder(context)
-            builder.setMessage("Do you push notifications to the server?")
-                .setPositiveButton("Yes", object : DialogInterface.OnClickListener{
-                    override fun onClick(p0: DialogInterface?, p1: Int) {
-                        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
-                    }
-                })
-                .setNegativeButton("No", object : DialogInterface.OnClickListener {
-                    override fun onClick(p0: DialogInterface?, p1: Int) {
 
-                    }
-                })
-            builder.create()
-        }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
     }
     private val onNotice = object : BroadcastReceiver(){
         @SuppressLint("SimpleDateFormat")
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("alabama", "hello")
+
             val postTime = intent.getStringExtra("CreateTime")
             val title = intent.getStringExtra("Title")
             val content = intent.getStringExtra("Content")

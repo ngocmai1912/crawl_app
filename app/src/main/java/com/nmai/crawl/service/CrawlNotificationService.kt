@@ -11,6 +11,10 @@ import java.util.*
 
 
 class CrawlNotificationService : NotificationListenerService() {
+    override fun onCreate() {
+        super.onCreate()
+        Log.d("check_create", "create")
+    }
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         var extras  = sbn.notification.extras
         var appBundle = sbn.packageName
@@ -30,9 +34,15 @@ class CrawlNotificationService : NotificationListenerService() {
         intent.putExtra("Content", content)
         intent.putExtra("AppName", applicationName)
         sendBroadcast(intent)
+        stopService(intent)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
        Log.d("remove_notification", "remove_notification")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("check_destroy", "destroy")
     }
 }
