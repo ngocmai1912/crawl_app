@@ -13,6 +13,7 @@ import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 class CrawlNotificationService : NotificationListenerService() {
@@ -48,10 +49,10 @@ class CrawlNotificationService : NotificationListenerService() {
                 if(isSuccessful == 200) {
                     saveNotification.checkPush = "true"
                 }
-                //Timber.d("post thanh cong")
+                Timber.d("post thanh cong")
             } catch (e: Exception){
                 saveNotification.checkPush = "false"
-               // Timber.d("post that bai $e")
+                Timber.d("post that bai $e")
             }
 
             val dao = NotificationDatabase.getInstance(application).notificationDao()
@@ -70,6 +71,6 @@ class CrawlNotificationService : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-       //Timber.d("remote notification")
+       Timber.d("remote notification")
     }
 }

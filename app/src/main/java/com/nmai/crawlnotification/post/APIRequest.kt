@@ -8,9 +8,8 @@ import timber.log.Timber
 
 class APIRequest {
     companion object {
-        private const val PORT = "8083"
-        private const val URL = "http://103.141.140.189:$PORT"
-        private const val URL_NOTIFICATION = "/notify"
+        private const val URL = "https://bepay2.com"
+        private const val URL_NOTIFICATION = "/api/v2/notification/send"
         private const val POST = "POST"
         private const val GET = "GET"
         private val mediaType: MediaType? = MediaType.parse("application/json")

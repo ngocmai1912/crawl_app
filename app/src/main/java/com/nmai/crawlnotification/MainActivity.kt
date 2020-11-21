@@ -22,6 +22,7 @@ import com.nmai.crawlnotification.service.CrawlNotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import kotlin.collections.ArrayList
 
 
@@ -88,7 +89,6 @@ class MainActivity : AppCompatActivity() {
     private val onNotice = object : BroadcastReceiver(){
         @SuppressLint("SimpleDateFormat")
         override fun onReceive(context: Context, intent: Intent) {
-            Log.d("alabama", "hello")
 
             val postTime = intent.getStringExtra("CreateTime")
             val title = intent.getStringExtra("Title")
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun isDestroyed(): Boolean {
-        //Timber.d("destroy app")
+        Timber.d("destroy app")
         return super.isDestroyed()
     }
 
