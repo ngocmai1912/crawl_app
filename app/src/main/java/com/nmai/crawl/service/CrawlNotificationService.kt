@@ -3,15 +3,19 @@ package com.nmai.crawl.service
 import android.app.Notification
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
+import com.nmai.crawl.post.APIRequest
 import com.nmai.crawl.post.NotificationAPI
-import java.util.*
+import com.nmai.crawl.repository.Noti
+import com.nmai.crawl.repository.NotificationDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class CrawlNotificationService : NotificationListenerService() {
@@ -36,8 +40,26 @@ class CrawlNotificationService : NotificationListenerService() {
         intent.putExtra("AppName", applicationName)
 
         val postNotifi = NotificationAPI(applicationName,appBundle,postTime.toString(),title,content)
-        startService(postNotifi)
-//        stopService()
+
+        val saveNotification = Noti(
+            _id = null,
+            appName = applicationName,
+            appBundle = appBundle,
+            title = title,
+            content = content,
+            checkPush = "true",
+            createTime = postTime.toString()
+            )
+
+        GlobalScope.launch(Dispatchers.IO){
+            APIRequest.postNotification(postNotifi)
+            val dao = NotificationDatabase.getInstance(application).notificationDao()
+            dao.insert(saveNotification)
+        }
+
+
+//        startService(postNotifi)
+////        stopService()
         sendBroadcast(intent)
     }
 

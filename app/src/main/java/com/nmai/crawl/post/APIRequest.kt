@@ -7,7 +7,7 @@ import okhttp3.*
 
 class APIRequest {
     companion object {
-        private const val PORT = "3001"
+        private const val PORT = "3000"
         private const val URL = "http://192.168.98.105:$PORT"
         private const val URL_NOTIFICATION = "/notification"
         private const val POST = "POST"

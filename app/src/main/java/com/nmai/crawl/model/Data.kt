@@ -20,27 +20,27 @@ object Data {
         }
         return listData
     }
-    fun insert(notificationData: com.nmai.crawl.model.NotificationData){
-        var check = "false"
-        if(notificationData.checkPush) check = "true"
-        NotificationDatabase.getInstance(MainActivity.context!!).notificationDao().insert(
-            Noti(
-                System.currentTimeMillis().toString(),
-                notificationData.appName,
-                notificationData.appBundle,
-                notificationData.createTime,
-                notificationData.title,
-                notificationData.content,
-                check
-            )
-        )
-    }
+//    fun insert(notificationData: com.nmai.crawl.model.NotificationData){
+//        var check = "false"
+//        if(notificationData.checkPush) check = "true"
+//        NotificationDatabase.getInstance(MainActivity.context!!).notificationDao().insert(
+//            Noti(
+//                System.currentTimeMillis().toString(),
+//                notificationData.appName,
+//                notificationData.appBundle,
+//                notificationData.createTime,
+//                notificationData.title,
+//                notificationData.content,
+//                check
+//            )
+//        )
+//    }
     fun update(notificationData: NotificationData){
         var check = "false"
         if(notificationData.checkPush) check = "true"
         NotificationDatabase.getInstance(MainActivity.context!!).notificationDao().insert(
             Noti(
-                System.currentTimeMillis().toString(),
+                System.currentTimeMillis().toInt(),
                 notificationData.appName,
                 notificationData.appBundle,
                 notificationData.createTime,
