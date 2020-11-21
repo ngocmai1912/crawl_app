@@ -119,7 +119,9 @@ class MainActivity : AppCompatActivity() {
     fun covertModel(listNotifyData: List<Noti>): List<NotificationData>{
         val list = ArrayList<NotificationData>()
         listNotifyData.forEach {
-            var isTrue = it.checkPush == "true"
+            var isTrue = true
+            if(it.checkPush == "true") isTrue = true
+            else if(it.checkPush == "false") isTrue = false
             val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,isTrue)
             list.add(noti)
         }
