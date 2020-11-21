@@ -57,19 +57,20 @@ class CrawlNotificationService : NotificationListenerService() {
                 if(isSuccessful) {
                     saveNotification.checkPush = "true"
                 }
+                Timber.d("post thanh cong")
             } catch (e: Exception){
                 saveNotification.checkPush = "false"
+                Timber.d("post that bai $e")
             }
 
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
-            Timber.d("save db and post Server")
         }
 
         sendBroadcast(intent)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-       Log.d("remove_notification", "remove_notification")
+       Timber.d("remote notification")
     }
 }

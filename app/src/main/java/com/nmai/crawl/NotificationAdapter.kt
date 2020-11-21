@@ -29,7 +29,6 @@ class NotificationAdapter(
         private var tvCreateTime : TextView = view.findViewById(R.id.create_time)
         private var checkPush : TextView = view.findViewById(R.id.check_push)
         fun bind(notificationData: NotificationData){
-            Log.d("akjakja", "aaaa")
             tvAppName.text = notificationData.appName
             tvTitle.text = notificationData.title
             tvContent.text = notificationData.content

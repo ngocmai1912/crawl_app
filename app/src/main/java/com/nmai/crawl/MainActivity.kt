@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -43,6 +44,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val dao = NotificationDatabase.getInstance(application).notificationDao()
+
         context = this
         val enabledListeners = Settings.Secure.getString(
             this.getContentResolver(),
@@ -60,12 +64,8 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MainActivity)
         }
         lifecycleScope.launch(Dispatchers.IO){
-            val list = NotificationDatabase.getInstance(application).notificationDao().getAll()
-            val listNoti = ArrayList<NotificationData>()
-            list.forEach{
-                val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,true)
-                listNoti.add(noti)
-            }
+            val list = dao.getAll()
+            val listNoti = covertModel(list)
 
             withContext(Dispatchers.Main){
                 adapter.addAll(listNoti)
@@ -73,7 +73,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         adapter.onClick = {
-            Log.d("check","test----------------------------")
+            lifecycleScope.launch(Dispatchers.IO){
+                val list = dao.getNotificationFailPost("false")
+                list.forEach{
+                    val notificationAPI = NotificationAPI(it.appName,it.appBundle,it.createTime,it.title,it.content)
+                    val isSuccessful = APIRequest.postNotification(notificationAPI)
+                    if (isSuccessful){
+                        it.checkPush = "true"
+                        dao.insert(it)
+
+                        Timber.d("POST notification lai")
+                    }
+                }
+            }
+            Toast.makeText(this,"Push Notification!!",Toast.LENGTH_SHORT).show()
 
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
@@ -107,7 +120,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun isDestroyed(): Boolean {
-        Log.d("check", "destroy app--------")
+        Timber.d("destroy app")
         return super.isDestroyed()
+    }
+
+    fun covertModel(listNotifyData: List<Noti>): List<NotificationData>{
+        val list = ArrayList<NotificationData>()
+        listNotifyData.forEach {
+            val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,true)
+            list.add(noti)
+        }
+
+        return list
     }
 }

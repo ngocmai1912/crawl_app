@@ -6,5 +6,5 @@ data class NotificationData (
     val createTime : String,
     val title : String,
     val content : String,
-    val checkPush : Boolean
+    var checkPush : Boolean
 )
