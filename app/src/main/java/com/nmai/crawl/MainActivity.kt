@@ -44,13 +44,14 @@ class MainActivity : AppCompatActivity() {
         val enabledListeners = Settings.Secure.getString(
             this.getContentResolver(),
             "enabled_notification_listeners"
-        ).toBoolean()
+        )
+        var str = CrawlNotificationService().javaClass.toString()
+        if(!enabledListeners.contains(str.subSequence(6, str.length)))
+            startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
 
-        startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
 
         recy = findViewById(R.id.list_notification)
         adapter = NotificationAdapter(this)
-
         recy.apply {
             adapter = this@MainActivity.adapter
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("SimpleDateFormat")
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("alabama", "hello")
+
             val postTime = intent.getStringExtra("CreateTime")
             val title = intent.getStringExtra("Title")
             val content = intent.getStringExtra("Content")
@@ -100,10 +102,6 @@ class MainActivity : AppCompatActivity() {
                 title!!,
                 content!!, false
             )
-
-           // startService(postNotifi)
-          //  stopService()
-
             adapter.add(tmp)
             Thread{
                 Data.insert(tmp)
@@ -111,6 +109,4 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-
 }

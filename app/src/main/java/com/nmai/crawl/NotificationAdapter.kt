@@ -18,7 +18,7 @@ import com.nmai.crawl.model.NotificationData
 import org.w3c.dom.Text
 
 class NotificationAdapter(
-    val context: Context,
+    val context: Context
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationHolder>() {
     lateinit var onClick : () -> Unit
     var listNotification = mutableListOf<NotificationData>()
