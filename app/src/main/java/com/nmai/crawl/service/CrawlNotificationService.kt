@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 
 
 class CrawlNotificationService : NotificationListenerService() {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         var extras  = sbn.notification.extras
         var appBundle = sbn.packageName
@@ -55,30 +54,13 @@ class CrawlNotificationService : NotificationListenerService() {
             APIRequest.postNotification(postNotifi)
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
+            Log.d("check","post and save data")
         }
 
-
-//        startService(postNotifi)
-////        stopService()
         sendBroadcast(intent)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
        Log.d("remove_notification", "remove_notification")
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun startService(notificationAPI: NotificationAPI){
-        val serviceIntent : Intent = Intent(this, ForegroundNotificationService::class.java)
-        serviceIntent.putExtra("notification_test", Gson().toJson(notificationAPI))
-
-        startForegroundService(serviceIntent)
-        Log.d("check","post data")
-
-    }
-
-    private fun stopService(){
-        val serviceIntent : Intent = Intent(this, ForegroundNotificationService::class.java)
-        stopService(serviceIntent)
     }
 }

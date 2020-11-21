@@ -7,9 +7,9 @@ import okhttp3.*
 
 class APIRequest {
     companion object {
-        private const val PORT = "3000"
-        private const val URL = "http://192.168.98.105:$PORT"
-        private const val URL_NOTIFICATION = "/notification"
+        private const val PORT = "8083"
+        private const val URL = "http://103.141.140.189:$PORT"
+        private const val URL_NOTIFICATION = "/notify"
         private const val POST = "POST"
         private const val GET = "GET"
         private val mediaType: MediaType? = MediaType.parse("application/json")

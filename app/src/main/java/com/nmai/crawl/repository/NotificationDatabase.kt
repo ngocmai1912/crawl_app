@@ -17,7 +17,9 @@ abstract class NotificationDatabase : RoomDatabase() {
         }
 
         fun buidDatabase(context: Context) : NotificationDatabase {
-            return Room.databaseBuilder(context, NotificationDatabase::class.java, "notificationData-3.db").build()
+            return Room.databaseBuilder(context, NotificationDatabase::class.java, "notificationData.db")
+                .fallbackToDestructiveMigration()
+                .build()
         }
     }
 }
