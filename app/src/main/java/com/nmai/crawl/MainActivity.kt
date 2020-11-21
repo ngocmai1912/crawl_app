@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private val onNotice = object : BroadcastReceiver(){
-        @RequiresApi(Build.VERSION_CODES.O)
         @SuppressLint("SimpleDateFormat")
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("alabama", "hello")
@@ -93,5 +92,10 @@ class MainActivity : AppCompatActivity() {
             adapter.add(tmp)
         }
 
+    }
+
+    override fun isDestroyed(): Boolean {
+        Log.d("check", "destroy app--------")
+        return super.isDestroyed()
     }
 }

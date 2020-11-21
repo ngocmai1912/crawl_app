@@ -16,6 +16,7 @@ import com.nmai.crawl.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 class CrawlNotificationService : NotificationListenerService() {
@@ -57,7 +58,7 @@ class CrawlNotificationService : NotificationListenerService() {
             }
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
-            Log.d("check","post and save data")
+            Timber.d("save db and post Server")
         }
 
         sendBroadcast(intent)
