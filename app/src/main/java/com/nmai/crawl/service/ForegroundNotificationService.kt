@@ -38,6 +38,7 @@ class ForegroundNotificationService : Service(){
                     val checkNotification = APIRequest. transformNotification(notificationDb)
                     if(checkNotification != testNotifi) {
                         val check = APIRequest.postNotification(testNotifi)
+
                         Log.d("check", "on Service $check")
                     }
                 }

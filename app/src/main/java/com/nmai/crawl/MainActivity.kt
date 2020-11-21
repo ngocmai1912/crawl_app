@@ -61,19 +61,6 @@ class MainActivity : AppCompatActivity() {
             adapter.addAll(Data.getAll())
         }.start()
         adapter.onClick = {
-//            val builder = AlertDialog.Builder(context)
-//            builder.setMessage("Do you push notifications to the server?")
-//                .setPositiveButton("Yes", object : DialogInterface.OnClickListener{
-//                    override fun onClick(p0: DialogInterface?, p1: Int) {
-//                        Toast.makeText(context, "ok", Toast.LENGTH_SHORT).show()
-//                    }
-//                })
-//                .setNegativeButton("No", object : DialogInterface.OnClickListener {
-//                    override fun onClick(p0: DialogInterface?, p1: Int) {
-//
-//                    }
-//                })
-//            builder.create()
             Log.d("check","test----------------------------")
 
         }

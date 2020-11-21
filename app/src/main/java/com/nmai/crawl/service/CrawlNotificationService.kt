@@ -36,7 +36,7 @@ class CrawlNotificationService : NotificationListenerService() {
         intent.putExtra("AppName", applicationName)
 
         val postNotifi = NotificationAPI(applicationName,appBundle,postTime.toString(),title,content)
-//        startService(postNotifi)
+        startService(postNotifi)
 //        stopService()
         sendBroadcast(intent)
     }
