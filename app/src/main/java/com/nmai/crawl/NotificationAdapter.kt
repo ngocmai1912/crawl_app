@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
+import android.icu.text.SimpleDateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.nmai.crawl.model.NotificationData
 import org.w3c.dom.Text
+import java.util.*
 
 class NotificationAdapter(
     val context: Context
@@ -31,7 +33,13 @@ class NotificationAdapter(
             tvAppName.text = notificationData.appName
             tvTitle.text = notificationData.title
             tvContent.text = notificationData.content
-            tvCreateTime.text = notificationData.createTime
+
+            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss a")
+            val date = Date()
+            date.time = notificationData.createTime.toLong()
+            val createTime = sdf.format(Date())
+            tvCreateTime.text = createTime
+
             if(!notificationData.checkPush){
                 checkPush.text = "Failed"
                 checkPush.setTextColor(Color.RED)

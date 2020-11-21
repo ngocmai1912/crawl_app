@@ -103,16 +103,15 @@ class MainActivity : AppCompatActivity() {
             val content = intent.getStringExtra("Content")
             val appName = intent.getStringExtra("AppName")
             val appBundle = intent.getStringExtra("AppBundle")
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss a")
-            val date = Date()
-            date.time = postTime!!.toLong()
-            val createTime = sdf.format(Date())
+            val checkPush = intent.getStringExtra("CheckPush")
+            var check = true
+            if(checkPush == "false") check = false
             val tmp = NotificationData(
                 appName!!,
                 appBundle!!,
-                createTime,
+                postTime!!.toString(),
                 title!!,
-                content!!, false
+                content!!, check
             )
             adapter.add(tmp)
         }
