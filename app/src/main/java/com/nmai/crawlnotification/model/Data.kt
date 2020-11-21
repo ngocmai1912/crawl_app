@@ -1,19 +1,19 @@
-package com.nmai.crawl.model
+package com.nmai.crawlnotification.model
 
-import com.nmai.crawl.MainActivity
-import com.nmai.crawl.repository.Noti
-import com.nmai.crawl.repository.NotificationDatabase
+import com.nmai.crawlnotification.MainActivity
+import com.nmai.crawlnotification.repository.Noti
+import com.nmai.crawlnotification.repository.NotificationDatabase
 
 object Data {
     var list : List<Noti> = NotificationDatabase.getInstance(MainActivity.context!!).notificationDao().getAll()
-    fun getAll() : List<com.nmai.crawl.model.NotificationData>{
+    fun getAll() : List<com.nmai.crawlnotification.model.NotificationData>{
 
-        var listData = mutableListOf<com.nmai.crawl.model.NotificationData>()
+        var listData = mutableListOf<com.nmai.crawlnotification.model.NotificationData>()
         for(i in list){
             var check : Boolean = false
             if(i.checkPush == "true") check = true
             listData.add(
-                com.nmai.crawl.model.NotificationData(
+                com.nmai.crawlnotification.model.NotificationData(
                     i.appName, i.appBundle, i.createTime, i.title, i.content, check
                 )
             )

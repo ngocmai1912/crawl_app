@@ -1,4 +1,4 @@
-package com.nmai.crawl.model
+package com.nmai.crawlnotification.model
 
 data class NotificationData (
     val appName : String,

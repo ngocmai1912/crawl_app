@@ -1,9 +1,7 @@
-package com.nmai.crawl
+package com.nmai.crawlnotification
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.*
-import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -15,21 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.nmai.crawl.model.Data
-import com.nmai.crawl.model.NotificationData
-import com.nmai.crawl.post.APIRequest
-import com.nmai.crawl.post.NotificationAPI
-import com.nmai.crawl.repository.Noti
-import com.nmai.crawl.repository.NotificationDatabase
-import com.nmai.crawl.service.CrawlNotificationService
-import com.nmai.crawl.service.ForegroundNotificationService
+import com.nmai.crawlnotification.model.NotificationData
+import com.nmai.crawlnotification.post.APIRequest
+import com.nmai.crawlnotification.post.NotificationAPI
+import com.nmai.crawlnotification.repository.Noti
+import com.nmai.crawlnotification.repository.NotificationDatabase
+import com.nmai.crawlnotification.service.CrawlNotificationService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -82,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                         it.checkPush = "true"
                         dao.insert(it)
 
-                        Timber.d("POST notification ${it._id} thanh cong")
+                     //   Timber.d("POST notification ${it._id} thanh cong")
                     }
                 }
             }
@@ -104,6 +96,7 @@ class MainActivity : AppCompatActivity() {
             val appName = intent.getStringExtra("AppName")
             val appBundle = intent.getStringExtra("AppBundle")
             val checkPush = intent.getStringExtra("CheckPush")
+
             var check = true
             if(checkPush == "false") check = false
             val tmp = NotificationData(
@@ -119,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun isDestroyed(): Boolean {
-        Timber.d("destroy app")
+        //Timber.d("destroy app")
         return super.isDestroyed()
     }
 

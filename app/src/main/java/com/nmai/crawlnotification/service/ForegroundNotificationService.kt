@@ -1,4 +1,4 @@
-package com.nmai.crawl.service
+package com.nmai.crawlnotification.service
 
 import android.app.*
 import android.content.Context
@@ -9,11 +9,11 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.gson.Gson
-import com.nmai.crawl.MainActivity
-import com.nmai.crawl.post.APIRequest
-import com.nmai.crawl.post.NotificationAPI
-import com.nmai.crawl.repository.Noti
-import com.nmai.crawl.repository.NotificationDatabase
+import com.nmai.crawlnotification.MainActivity
+import com.nmai.crawlnotification.post.APIRequest
+import com.nmai.crawlnotification.post.NotificationAPI
+import com.nmai.crawlnotification.repository.Noti
+import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

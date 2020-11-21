@@ -1,4 +1,4 @@
-package com.nmai.crawl.repository
+package com.nmai.crawlnotification.repository
 
 import android.content.Context
 import androidx.room.Database

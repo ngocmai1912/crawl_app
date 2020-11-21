@@ -1,8 +1,8 @@
-package com.nmai.crawl.post
+package com.nmai.crawlnotification.post
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.nmai.crawl.repository.Noti
+import com.nmai.crawlnotification.repository.Noti
 import okhttp3.*
 import timber.log.Timber
 

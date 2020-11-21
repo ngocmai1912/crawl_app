@@ -1,4 +1,4 @@
-package com.nmai.crawl.repository
+package com.nmai.crawlnotification.repository
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

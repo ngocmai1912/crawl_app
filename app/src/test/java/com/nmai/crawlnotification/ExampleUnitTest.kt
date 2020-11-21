@@ -1,4 +1,4 @@
-package com.nmai.crawl
+package com.nmai.crawlnotification
 
 import org.junit.Test
 

@@ -1,9 +1,6 @@
-package com.nmai.crawl
+package com.nmai.crawlnotification
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.util.Log
@@ -11,10 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
-import com.nmai.crawl.model.NotificationData
-import org.w3c.dom.Text
+import com.nmai.crawlnotification.model.NotificationData
 import java.util.*
 
 class NotificationAdapter(
