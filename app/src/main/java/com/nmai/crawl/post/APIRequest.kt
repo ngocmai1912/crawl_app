@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nmai.crawl.repository.Noti
 import okhttp3.*
+import timber.log.Timber
 
 class APIRequest {
     companion object {
@@ -36,7 +37,7 @@ class APIRequest {
          * @return  True is post successfull
          * @return False is not post
          * */
-        fun postNotification(notificationAPI: NotificationAPI): Boolean {
+        fun postNotification(notificationAPI: NotificationAPI): Int {
             val client = OkHttpClient().newBuilder()
                 .build()
             val notificationToJson = Gson().toJson(notificationAPI)
@@ -48,12 +49,12 @@ class APIRequest {
                 .build()
 
             val response = client.newCall(request).execute()
-            return response.isSuccessful
+
+            return response.code()
         }
 
         fun transformNotification(noti: Noti) : NotificationAPI{
             return NotificationAPI(
-                appName = noti.appName,
                 appBundle = noti.appBundle,
                 time = noti.createTime,
                 title = noti.title,

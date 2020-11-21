@@ -39,7 +39,7 @@ class CrawlNotificationService : NotificationListenerService() {
         intent.putExtra("Content", content)
         intent.putExtra("AppName", applicationName)
 
-        val postNotifi = NotificationAPI(applicationName,appBundle,postTime.toString(),title,content)
+        val postNotifi = NotificationAPI(appBundle,postTime.toString(),title,content)
 
         val saveNotification = Noti(
             _id = null,
@@ -54,7 +54,7 @@ class CrawlNotificationService : NotificationListenerService() {
         GlobalScope.launch(Dispatchers.IO){
             try {
                 val isSuccessful =  APIRequest.postNotification(postNotifi)
-                if(isSuccessful) {
+                if(isSuccessful == 200) {
                     saveNotification.checkPush = "true"
                 }
                 Timber.d("post thanh cong")

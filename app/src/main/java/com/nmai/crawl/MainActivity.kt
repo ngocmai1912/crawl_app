@@ -76,13 +76,13 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch(Dispatchers.IO){
                 val list = dao.getNotificationFailPost("false")
                 list.forEach{
-                    val notificationAPI = NotificationAPI(it.appName,it.appBundle,it.createTime,it.title,it.content)
+                    val notificationAPI = NotificationAPI(it.appBundle,it.createTime,it.title,it.content)
                     val isSuccessful = APIRequest.postNotification(notificationAPI)
-                    if (isSuccessful){
+                    if (isSuccessful == 200){
                         it.checkPush = "true"
                         dao.insert(it)
 
-                        Timber.d("POST notification lai")
+                        Timber.d("POST notification ${it._id} thanh cong")
                     }
                 }
             }
@@ -127,7 +127,8 @@ class MainActivity : AppCompatActivity() {
     fun covertModel(listNotifyData: List<Noti>): List<NotificationData>{
         val list = ArrayList<NotificationData>()
         listNotifyData.forEach {
-            val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,true)
+            var isTrue = it.checkPush == "true"
+            val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,isTrue)
             list.add(noti)
         }
 
