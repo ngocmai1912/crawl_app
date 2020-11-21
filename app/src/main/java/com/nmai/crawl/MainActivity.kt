@@ -91,9 +91,6 @@ class MainActivity : AppCompatActivity() {
                 content!!, false
             )
             adapter.add(tmp)
-            Thread{
-                Data.insert(tmp)
-            }.start()
         }
 
     }
