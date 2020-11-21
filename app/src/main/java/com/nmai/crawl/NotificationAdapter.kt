@@ -4,14 +4,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.CompoundButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.nmai.crawl.model.NotificationData
@@ -28,13 +26,22 @@ class NotificationAdapter(
         private var tvContent : TextView = view.findViewById(R.id.content)
         private var tvCreateTime : TextView = view.findViewById(R.id.create_time)
         private var checkPush : TextView = view.findViewById(R.id.check_push)
+        private var im : ImageView = view.findViewById(R.id.image)
         fun bind(notificationData: NotificationData){
             tvAppName.text = notificationData.appName
             tvTitle.text = notificationData.title
             tvContent.text = notificationData.content
             tvCreateTime.text = notificationData.createTime
-            if(!notificationData.checkPush) checkPush.text = "Failed"
-
+            if(!notificationData.checkPush){
+                checkPush.text = "Failed"
+                checkPush.setTextColor(Color.RED)
+                im.setBackgroundResource(R.drawable.ic_fail)
+            }
+            else{
+                checkPush.text = "Successfully"
+                checkPush.setTextColor(Color.GREEN)
+                im.setBackgroundResource(R.drawable.ic_success)
+            }
             itemView.setOnClickListener {
                 onClick()
             }
