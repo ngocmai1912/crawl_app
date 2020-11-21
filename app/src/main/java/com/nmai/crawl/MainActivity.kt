@@ -27,7 +27,9 @@ import com.nmai.crawl.service.ForegroundNotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -57,9 +59,19 @@ class MainActivity : AppCompatActivity() {
             adapter = this@MainActivity.adapter
             layoutManager = LinearLayoutManager(this@MainActivity)
         }
-        Thread{
-            adapter.addAll(Data.getAll())
-        }.start()
+        lifecycleScope.launch(Dispatchers.IO){
+            val list = NotificationDatabase.getInstance(application).notificationDao().getAll()
+            val listNoti = ArrayList<NotificationData>()
+            list.forEach{
+                val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,true)
+                listNoti.add(noti)
+            }
+
+            withContext(Dispatchers.Main){
+                adapter.addAll(listNoti)
+            }
+        }
+
         adapter.onClick = {
             Log.d("check","test----------------------------")
 

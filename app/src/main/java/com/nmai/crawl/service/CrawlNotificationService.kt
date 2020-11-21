@@ -52,10 +52,15 @@ class CrawlNotificationService : NotificationListenerService() {
             )
 
         GlobalScope.launch(Dispatchers.IO){
-            val isSuccessful =  APIRequest.postNotification(postNotifi)
-            if(isSuccessful) {
-                saveNotification.checkPush = "true"
+            try {
+                val isSuccessful =  APIRequest.postNotification(postNotifi)
+                if(isSuccessful) {
+                    saveNotification.checkPush = "true"
+                }
+            } catch (e: Exception){
+                saveNotification.checkPush = "false"
             }
+
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
             Timber.d("save db and post Server")
