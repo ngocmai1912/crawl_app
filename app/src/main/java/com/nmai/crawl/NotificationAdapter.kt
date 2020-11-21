@@ -19,8 +19,8 @@ import org.w3c.dom.Text
 
 class NotificationAdapter(
     val context: Context,
-    var onClick : () -> Unit
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationHolder>() {
+    lateinit var onClick : () -> Unit
     var listNotification = mutableListOf<NotificationData>()
     inner class NotificationHolder(val view : View) : RecyclerView.ViewHolder(view){
         private var tvAppName : TextView = view.findViewById(R.id.tv_app_name)
@@ -36,6 +36,9 @@ class NotificationAdapter(
             tvCreateTime.text = notificationData.createTime
             if(!notificationData.checkPush) checkPush.text = "Failed"
 
+            itemView.setOnClickListener {
+                onClick()
+            }
         }
     }
 

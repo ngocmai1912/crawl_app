@@ -1,16 +1,18 @@
 package com.nmai.crawl.repository
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface NotificationDao {
-    @Query("SELECT * FROM noti")
+    @Query("SELECT * FROM TABLE_NOTIFICATION")
     fun getAll() : List<Noti>
-    @Insert
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(notificationData: Noti)
+
     @Update
-    fun update(notificationData: Noti)
+    fun update(vararg notificationData: Noti)
+
+    @Query("SELECT * FROM TABLE_NOTIFICATION WHERE _content = :content")
+    fun getNotificationWithContent(content: String) : Noti
 }

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = arrayOf(Noti::class), version = 1)
+@Database(entities = arrayOf(Noti::class), version = 2)
 abstract class NotificationDatabase : RoomDatabase() {
     abstract fun notificationDao() : NotificationDao
     companion object{
@@ -17,7 +17,7 @@ abstract class NotificationDatabase : RoomDatabase() {
         }
 
         fun buidDatabase(context: Context) : NotificationDatabase {
-            return Room.databaseBuilder(context, NotificationDatabase::class.java, "notificationData.db").build()
+            return Room.databaseBuilder(context, NotificationDatabase::class.java, "notificationData-2.db").build()
         }
     }
 }
