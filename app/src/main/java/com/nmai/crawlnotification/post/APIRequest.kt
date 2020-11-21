@@ -55,6 +55,7 @@ class APIRequest {
 
         fun transformNotification(noti: Noti) : NotificationAPI{
             return NotificationAPI(
+                appName = noti.appName,
                 appBundle = noti.appBundle,
                 time = noti.createTime,
                 title = noti.title,

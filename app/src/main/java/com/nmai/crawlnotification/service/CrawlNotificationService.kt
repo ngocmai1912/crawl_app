@@ -30,7 +30,7 @@ class CrawlNotificationService : NotificationListenerService() {
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
 
-        val postNotifi = NotificationAPI(appBundle,postTime.toString(),title,content)
+        val postNotifi = NotificationAPI(applicationName,appBundle,postTime.toString(),title,content)
 
         var saveNotification = Noti(
             _id = null,

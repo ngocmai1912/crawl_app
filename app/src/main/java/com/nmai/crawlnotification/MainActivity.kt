@@ -65,20 +65,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         adapter.onClick = {
-            lifecycleScope.launch(Dispatchers.IO){
-                val list = dao.getNotificationFailPost("false")
-                list.forEach{
-                    val notificationAPI = NotificationAPI(it.appBundle,it.createTime,it.title,it.content)
-                    val isSuccessful = APIRequest.postNotification(notificationAPI)
-                    if (isSuccessful == 200){
-                        it.checkPush = "true"
-                        dao.insert(it)
-
-                     //   Timber.d("POST notification ${it._id} thanh cong")
-                    }
-                }
-            }
-            Toast.makeText(this,"Push Notification!!",Toast.LENGTH_SHORT).show()
+//            lifecycleScope.launch(Dispatchers.IO){
+//                val list = dao.getNotificationFailPost("false")
+//                list.forEach{
+//                    val notificationAPI = NotificationAPI(it.appName,it.appBundle,it.createTime,it.title,it.content)
+//                    val isSuccessful = APIRequest.postNotification(notificationAPI)
+//                    if (isSuccessful == 200){
+//                        it.checkPush = "true"
+//                        dao.insert(it)
+//
+//                     //   Timber.d("POST notification ${it._id} thanh cong")
+//                    }
+//                }
+//            }
+//            Toast.makeText(this,"Push Notification!!",Toast.LENGTH_SHORT).show()
 
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
