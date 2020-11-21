@@ -12,5 +12,5 @@ data class Noti(
     @ColumnInfo(name = "_createTime") val createTime : String,
     @ColumnInfo(name = "_title") val title : String,
     @ColumnInfo(name = "_content") val content : String,
-    @ColumnInfo(name = "_checkPush") val checkPush : String
+    @ColumnInfo(name = "_checkPush") var checkPush : String
 )

@@ -46,12 +46,15 @@ class CrawlNotificationService : NotificationListenerService() {
             appBundle = appBundle,
             title = title,
             content = content,
-            checkPush = "true",
+            checkPush = "false",
             createTime = postTime.toString()
             )
 
         GlobalScope.launch(Dispatchers.IO){
-            APIRequest.postNotification(postNotifi)
+            val isSuccessful =  APIRequest.postNotification(postNotifi)
+            if(isSuccessful) {
+                saveNotification.checkPush = "true"
+            }
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
             Log.d("check","post and save data")
