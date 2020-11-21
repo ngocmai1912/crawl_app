@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         listNotifyData.forEach {
             var isTrue = true
             if(it.checkPush == "true") isTrue = true
-            else if(it.checkPush == "flase") isTrue = false
+            else if(it.checkPush == "false") isTrue = false
             val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,isTrue)
             list.add(noti)
         }
