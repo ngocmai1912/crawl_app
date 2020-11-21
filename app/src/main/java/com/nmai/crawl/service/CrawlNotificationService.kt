@@ -32,12 +32,7 @@ class CrawlNotificationService : NotificationListenerService() {
         ai = pm.getApplicationInfo(sbn.packageName, 0)
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
-        val intent = Intent("MessageReceiver")
-        intent.putExtra("AppBundle", appBundle)
-        intent.putExtra("CreateTime", postTime.toString())
-        intent.putExtra("Title", title)
-        intent.putExtra("Content", content)
-        intent.putExtra("AppName", applicationName)
+
 
         val postNotifi = NotificationAPI(applicationName,appBundle,postTime.toString(),title,content)
 
@@ -66,7 +61,13 @@ class CrawlNotificationService : NotificationListenerService() {
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             dao.insert(saveNotification)
         }
-
+        val intent = Intent("MessageReceiver")
+        intent.putExtra("AppBundle", appBundle)
+        intent.putExtra("CreateTime", postTime.toString())
+        intent.putExtra("Title", title)
+        intent.putExtra("Content", content)
+        intent.putExtra("AppName", applicationName)
+        intent.putExtra("CheckPush", saveNotification.checkPush)
         sendBroadcast(intent)
     }
 
