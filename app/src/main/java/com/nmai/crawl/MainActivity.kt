@@ -22,6 +22,7 @@ import com.nmai.crawl.post.APIRequest
 import com.nmai.crawl.post.NotificationAPI
 import com.nmai.crawl.repository.Noti
 import com.nmai.crawl.repository.NotificationDatabase
+import com.nmai.crawl.service.CrawlNotificationService
 import com.nmai.crawl.service.ForegroundNotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
