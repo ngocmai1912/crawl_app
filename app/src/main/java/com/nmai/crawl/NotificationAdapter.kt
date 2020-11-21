@@ -64,7 +64,6 @@ class NotificationAdapter(
 
     fun add(notificationData: NotificationData){
         listNotification.add(notificationData)
-        Log.d("aaaassssss", listNotification.toString())
         notifyDataSetChanged()
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationHolder {
