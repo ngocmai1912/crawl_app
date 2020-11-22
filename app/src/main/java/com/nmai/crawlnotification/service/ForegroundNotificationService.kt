@@ -17,33 +17,49 @@ import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class ForegroundNotificationService : Service(){
+
+    companion object {
+        const val CHANNEL_NOTIFICATION_SERVICE = "113"
+        const val ID_NOTIFICATION_CRAWL = 113
+        const val NAME_CHANNEL = "crawl notification"
+        const val DESCRIPTION_TEXT = "push notification to server and save database"
+
+
+        /**
+         * @param nameApp: Truyen ten app de vao trong noi dung
+         * @param context: ...
+         *
+         * */
+        fun startService(nameApp: String, context: Context){
+            val notificationService : Intent = Intent(context,ForegroundNotificationService::class.java)
+            notificationService.putExtra("name_app",nameApp)
+            context.startService(notificationService)
+
+            Timber.d("notification visible")
+        }
+
+        /**
+         * @param context dua 1 context de check xem stop
+         * */
+        fun stopService(context: Context){
+            val notificationService : Intent = Intent(context,ForegroundNotificationService::class.java)
+
+            context.stopService(notificationService)
+        }
+    }
+
+
     override fun onBind(p0: Intent?): IBinder? {
         return Binder()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notificationDB = intent?.getStringExtra("notification_test")
-        val testNotifi = Gson().fromJson(notificationDB,NotificationAPI::class.java)
 
-        Log.d("check",testNotifi.toString())
-
-        GlobalScope.launch(Dispatchers.IO){
-            if (notificationDB !=null){
-                val notificationDao = NotificationDatabase.getInstance(application).notificationDao()
-                val notificationDb: Noti? = notificationDao.getNotificationWithContent(testNotifi.content)
-                if(notificationDb != null ){
-                    val checkNotification = APIRequest. transformNotification(notificationDb)
-                    if(checkNotification != testNotifi) {
-                        val check = APIRequest.postNotification(testNotifi)
-
-                        Log.d("check", "on Service $check")
-                    }
-                }
-            }
-        }
+        val appName = intent?.getStringExtra("app_name")
 
         createNotificationChanel()
         val pendingIntent : PendingIntent =
@@ -51,28 +67,28 @@ class ForegroundNotificationService : Service(){
                 PendingIntent.getActivities(this, 0, arrayOf(notificationIntent), 0)
             }
 
-        val notification : Notification =  Notification.Builder(this, "113")
-            .setContentTitle("ds")
-            .setContentText("ds")
+        val notification : Notification =  Notification.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
+            .setContentTitle("App crawl")
+            .setContentText(appName)
             .setContentIntent(pendingIntent)
-            .setTicker("ds")
             .build()
 
-
-        startForeground(113, notification)
+        startForeground(ID_NOTIFICATION_CRAWL, notification)
+        Timber.d("start notification $appName")
 
         return START_NOT_STICKY
 
     }
+
     private fun createNotificationChanel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "post notification"
-            val descriptionText = "descriptionText"
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel("113", name, importance).apply {
-                description = descriptionText
-            }
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val channel =
+                NotificationChannel(CHANNEL_NOTIFICATION_SERVICE, NAME_CHANNEL, importance).apply {
+                    description = DESCRIPTION_TEXT
+                }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
