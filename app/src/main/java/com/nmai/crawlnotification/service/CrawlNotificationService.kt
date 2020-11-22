@@ -56,9 +56,6 @@ class CrawlNotificationService : NotificationListenerService() {
                 createTime = postTime.toString()
             )
 
-            //TODO: start notification visible notification post
-            //ForegroundNotificationService.startService(applicationName, this)
-
             GlobalScope.launch(Dispatchers.IO){
 
                 try {
@@ -71,7 +68,7 @@ class CrawlNotificationService : NotificationListenerService() {
                     saveNotification.checkPush = "false"
 
                     withContext(Dispatchers.Main){
-                        APIRequest.postNotificationWithFail(applicationName,this@CrawlNotificationService)
+                        APIRequest.postNotificationWithFail(applicationName,postTime.toString(),this@CrawlNotificationService)
                     }
                     Timber.d("post that bai $e")
                 }

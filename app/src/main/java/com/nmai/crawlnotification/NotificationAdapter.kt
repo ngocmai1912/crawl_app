@@ -15,7 +15,7 @@ import java.util.*
 class NotificationAdapter(
     val context: Context
 ) : RecyclerView.Adapter<NotificationAdapter.NotificationHolder>() {
-    lateinit var onClick : () -> Unit
+    lateinit var onClick : (time: String) -> Unit
     var listNotification = mutableListOf<NotificationData>()
     inner class NotificationHolder(val view : View) : RecyclerView.ViewHolder(view){
         private var tvAppName : TextView = view.findViewById(R.id.tv_app_name)
@@ -46,7 +46,12 @@ class NotificationAdapter(
                 im.setBackgroundResource(R.drawable.ic_success)
             }
             itemView.setOnClickListener {
-                onClick()
+                if(!notificationData.checkPush){
+                    onClick(notificationData.createTime)
+                }
+                else{
+                    Toast.makeText(context, "Notification is posted!", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

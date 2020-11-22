@@ -16,6 +16,6 @@ interface NotificationDao {
     @Update
     fun update(vararg notificationData: Noti)
 
-    @Query("SELECT * FROM TABLE_NOTIFICATION WHERE _content = :content")
-    fun getNotificationWithContent(content: String) : Noti
+    @Query("SELECT * FROM TABLE_NOTIFICATION WHERE _createTime = :time")
+    fun getNotificationWithTime(time: String) : Noti
 }

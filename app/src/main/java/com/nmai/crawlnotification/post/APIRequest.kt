@@ -90,11 +90,11 @@ class APIRequest {
             )
         }
 
-        fun postNotificationWithFail(appName :String,context: Context){
+        fun postNotificationWithFail(appName :String, time: String,context: Context){
             createNotificationChanel(context)
 
             val resultIntent = Intent(context, MainActivity::class.java)
-            resultIntent.putExtra("post_again_notification","POST")
+            resultIntent.putExtra("post_again_notification",time)
             val resultPendingIntent : PendingIntent? =
                 PendingIntent.getActivities(context,0, arrayOf(resultIntent),0)
 
