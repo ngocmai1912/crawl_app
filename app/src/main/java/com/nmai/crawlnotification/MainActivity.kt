@@ -42,8 +42,8 @@ class MainActivity : AppCompatActivity() {
 
         //Post data with onClick notification
         val post =  intent.getStringExtra("post_again_notification")
-        if (post == "POST"){
-            postNotificationToServer(dao)
+        if(post != null){
+            postNotificationToServer(dao, post)
         }
 
         setContentView(R.layout.activity_main)
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        adapter.onClick = {
-            postNotificationToServer(dao)
+        adapter.onClick = {time ->
+            postNotificationToServer(dao,time)
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
     }
@@ -122,33 +122,34 @@ class MainActivity : AppCompatActivity() {
         return list
     }
 
-    private fun postNotificationToServer(dao: NotificationDao){
+    private fun postNotificationToServer(dao: NotificationDao, time: String){
         lifecycleScope.launch(Dispatchers.IO){
-            val list = dao.getNotificationFailPost("false")
+            val notificationDB = dao.getNotificationWithTime(time)
 
-            Timber.d("check list $list")
-
-            list.forEach {
-                val notificationAPI = NotificationAPI(
-                    it.appName,
-                    it.appBundle,
-                    it.createTime,
-                    it.title,
-                    it.content
-                )
-                try {
-                    val isSuccess =  APIRequest.postNotification(notificationAPI)
-                    if (isSuccess == 200) {
-                        Timber.d("post notification Success!!")
-                        it.checkPush = "true"
-                        dao.update(it)
-                       // Toast.makeText(context,"Post notification success!", Toast.LENGTH_SHORT).show()
+            Timber.d("status - ${notificationDB.checkPush}")
+            val notificationPost = NotificationAPI(
+                notificationDB.appName,
+                notificationDB.appBundle,
+                notificationDB.createTime,
+                notificationDB.title,
+                notificationDB.content
+            )
+            try {
+                val isSuccess =  APIRequest.postNotification(notificationPost)
+                if (isSuccess == 200) {
+                    Timber.d("post notification Success!!")
+                    notificationDB.checkPush = "true"
+                    dao.update(notificationDB)
+                    withContext(Dispatchers.Main){
+                        Toast.makeText(context,"Post notification success!", Toast.LENGTH_SHORT).show()
                     }
                 }
-                catch (e : Exception){
-                    Timber.d("post fail!")
+            }
+            catch (e : Exception){
+                Timber.d("post fail!")
+                withContext(Dispatchers.Main){
                     withContext(Dispatchers.Main){
-                        //Toast.makeText(context,"post fail!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,"post fail!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
