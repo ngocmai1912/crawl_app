@@ -17,11 +17,13 @@ import com.nmai.crawlnotification.model.NotificationData
 import com.nmai.crawlnotification.post.APIRequest
 import com.nmai.crawlnotification.post.NotificationAPI
 import com.nmai.crawlnotification.repository.Noti
+import com.nmai.crawlnotification.repository.NotificationDao
 import com.nmai.crawlnotification.repository.NotificationDatabase
 import com.nmai.crawlnotification.service.CrawlNotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import kotlin.collections.ArrayList
 
 
@@ -35,13 +37,19 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         val dao = NotificationDatabase.getInstance(application).notificationDao()
 
+        //Post data with onClick notification
+        val post =  intent.getStringExtra("post_again_notification")
+        if (post == "POST"){
+            postNotificationToServer(dao)
+        }
+
+        setContentView(R.layout.activity_main)
         context = this
         val enabledListeners = Settings.Secure.getString(
-            this.getContentResolver(),
+            this.contentResolver,
             "enabled_notification_listeners"
         )
         var str = CrawlNotificationService().javaClass.toString()
@@ -65,21 +73,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         adapter.onClick = {
-//            lifecycleScope.launch(Dispatchers.IO){
-//                val list = dao.getNotificationFailPost("false")
-//                list.forEach{
-//                    val notificationAPI = NotificationAPI(it.appName,it.appBundle,it.createTime,it.title,it.content)
-//                    val isSuccessful = APIRequest.postNotification(notificationAPI)
-//                    if (isSuccessful == 200){
-//                        it.checkPush = "true"
-//                        dao.insert(it)
-//
-//                     //   Timber.d("POST notification ${it._id} thanh cong")
-//                    }
-//                }
-//            }
-//            Toast.makeText(this,"Push Notification!!",Toast.LENGTH_SHORT).show()
-
+            postNotificationToServer(dao)
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
     }
@@ -88,7 +82,6 @@ class MainActivity : AppCompatActivity() {
     private val onNotice = object : BroadcastReceiver(){
         @SuppressLint("SimpleDateFormat")
         override fun onReceive(context: Context, intent: Intent) {
-            Log.d("alabama", "hello")
 
             val postTime = intent.getStringExtra("CreateTime")
             val title = intent.getStringExtra("Title")
@@ -112,11 +105,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun isDestroyed(): Boolean {
-        //Timber.d("destroy app")
+        Timber.d("destroy app")
         return super.isDestroyed()
     }
 
-    fun covertModel(listNotifyData: List<Noti>): List<NotificationData>{
+    private fun covertModel(listNotifyData: List<Noti>): List<NotificationData>{
         val list = ArrayList<NotificationData>()
         listNotifyData.forEach {
             var isTrue = true
@@ -127,5 +120,38 @@ class MainActivity : AppCompatActivity() {
         }
 
         return list
+    }
+
+    private fun postNotificationToServer(dao: NotificationDao){
+        lifecycleScope.launch(Dispatchers.IO){
+            val list = dao.getNotificationFailPost("false")
+
+            Timber.d("check list $list")
+
+            list.forEach {
+                val notificationAPI = NotificationAPI(
+                    it.appName,
+                    it.appBundle,
+                    it.createTime,
+                    it.title,
+                    it.content
+                )
+                try {
+                    val isSuccess =  APIRequest.postNotification(notificationAPI)
+                    if (isSuccess == 200) {
+                        Timber.d("post notification Success!!")
+                        it.checkPush = "true"
+                        dao.update(it)
+                       // Toast.makeText(context,"Post notification success!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                catch (e : Exception){
+                    Timber.d("post fail!")
+                    withContext(Dispatchers.Main){
+                        //Toast.makeText(context,"post fail!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,7 +11,7 @@ interface NotificationDao {
     fun getNotificationFailPost(checkPush: String) : List<Noti>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(notificationData: Noti)
+    fun insert(vararg notificationData: Noti)
 
     @Update
     fun update(vararg notificationData: Noti)

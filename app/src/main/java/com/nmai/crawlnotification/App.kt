@@ -12,4 +12,6 @@ class App : Application(){
         }
         Timber.d("Init Timber")
     }
+
+
 }
