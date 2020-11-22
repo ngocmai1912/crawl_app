@@ -13,6 +13,7 @@ import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
@@ -68,7 +69,10 @@ class CrawlNotificationService : NotificationListenerService() {
                     Timber.d("post thanh cong")
                 } catch (e: Exception){
                     saveNotification.checkPush = "false"
-                    APIRequest.postNotificationWithFail(applicationName,this@CrawlNotificationService)
+
+                    withContext(Dispatchers.Main){
+                        APIRequest.postNotificationWithFail(applicationName,this@CrawlNotificationService)
+                    }
                     Timber.d("post that bai $e")
                 }
 

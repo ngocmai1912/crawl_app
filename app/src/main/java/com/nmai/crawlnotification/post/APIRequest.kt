@@ -2,7 +2,9 @@ package com.nmai.crawlnotification.post
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.provider.Settings.Global.getString
 import androidx.core.app.NotificationCompat
@@ -10,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.nmai.crawlnotification.MainActivity
 import com.nmai.crawlnotification.R
 import com.nmai.crawlnotification.repository.Noti
 import com.nmai.crawlnotification.service.ForegroundNotificationService
@@ -90,20 +93,27 @@ class APIRequest {
         fun postNotificationWithFail(appName :String,context: Context){
             createNotificationChanel(context)
 
+            val resultIntent = Intent(context, MainActivity::class.java)
+            resultIntent.putExtra("post_again_notification","POST")
+            val resultPendingIntent : PendingIntent? =
+                PendingIntent.getActivities(context,0, arrayOf(resultIntent),0)
+
             var builder =
                 NotificationCompat.Builder(context,CHANNEL_NOTIFICATION_SERVICE)
+                    .setContentIntent(resultPendingIntent)
                     .setSmallIcon(R.drawable.ic_launcher_background)
                     .setContentTitle(appName)
                     .setContentText("$appName chưa gửi lên được Server!")
                     .setStyle(NotificationCompat.BigTextStyle()
                     .bigText("$appName chưa gửi lên được Server!"))
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true)
 
             with(NotificationManagerCompat.from(context)) {
                 notify(113, builder.build())
             }
 
-            //TODO: Ver 2 onClick gui lai
+
         }
 
         private fun createNotificationChanel(context: Context){
