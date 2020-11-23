@@ -126,7 +126,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO){
             val notificationDB = dao.getNotificationWithTime(time)
 
-            Timber.d("status - ${notificationDB.checkPush}")
             val notificationPost = NotificationAPI(
                 notificationDB.appName,
                 notificationDB.appBundle,
@@ -154,5 +153,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 }

@@ -49,7 +49,7 @@ class APIRequest {
             val client = OkHttpClient().newBuilder()
                 .build()
             val request: Request = Request.Builder()
-                .url(URL + URL_NOTIFICATION)
+                .url(URL_TEST + URL_NOTIFICATION_TEST)
                 .method("GET", null)
                 .build()
 
@@ -118,7 +118,7 @@ class APIRequest {
 
         private fun createNotificationChanel(context: Context){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val importance = NotificationManager.IMPORTANCE_LOW
+                val importance = NotificationManager.IMPORTANCE_HIGH
                 val channel =
                     NotificationChannel(CHANNEL_NOTIFICATION_SERVICE, NAME_CHANNEL, importance).apply {
                         description = DESCRIPTION_TEXT
