@@ -32,7 +32,7 @@ class NotificationAdapter(
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss a")
             val date = Date()
             date.time = notificationData.createTime.toLong()
-            val createTime = sdf.format(Date())
+            val createTime = sdf.format(date)
             tvCreateTime.text = createTime
 
             if(!notificationData.checkPush){

@@ -148,9 +148,15 @@ class MainActivity : AppCompatActivity() {
                 Timber.d("post fail!")
                 withContext(Dispatchers.Main){
                     withContext(Dispatchers.Main){
-                        Toast.makeText(context,"post fail!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,"Post fail!", Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
+            val list = dao.getAll()
+            val listNoti = covertModel(list)
+
+            withContext(Dispatchers.Main){
+                adapter.addAll(listNoti)
             }
         }
 

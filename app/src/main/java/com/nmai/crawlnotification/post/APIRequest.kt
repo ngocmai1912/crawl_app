@@ -101,11 +101,11 @@ class APIRequest {
             var builder =
                 NotificationCompat.Builder(context,CHANNEL_NOTIFICATION_SERVICE)
                     .setContentIntent(resultPendingIntent)
-                    .setSmallIcon(R.drawable.ic_launcher_background)
+                    .setSmallIcon(R.drawable.ic_noti)
                     .setContentTitle(appName)
-                    .setContentText("$appName chưa gửi lên được Server!")
+                    .setContentText("$appName chưa được gửi lên Server!")
                     .setStyle(NotificationCompat.BigTextStyle()
-                    .bigText("$appName chưa gửi lên được Server!"))
+                    .bigText("$appName chưa được gửi lên Server!"))
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setAutoCancel(true)
 
