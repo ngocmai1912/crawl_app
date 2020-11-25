@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
     private lateinit var adapter : NotificationAdapter
     companion object{
         var context : Context? = null
+        var PACKAGE_NAME_SMS : String? = null
     }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +56,10 @@ class MainActivity : AppCompatActivity(), SmsListener {
         }
 
         setContentView(R.layout.activity_main)
+        PACKAGE_NAME_SMS = Settings.Secure.getString(
+            contentResolver,
+            "sms_default_application"
+        )
         context = this
         // set listener for sms receive
         SmsReceiveListener.bindListener(this)
@@ -222,7 +228,9 @@ class MainActivity : AppCompatActivity(), SmsListener {
             contentResolver,
             "sms_default_application"
         )
-        val notificationAPI = NotificationAPI(appName,appBundle,createTime,title,content)
+        var check = true
+        Log.d("aaaaaaaaaaaaa 1", appBundle)
+        val notificationAPI = NotificationAPI(appName, PACKAGE_NAME_SMS!!,createTime,title,content)
         lifecycleScope.launch(Dispatchers.IO){
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             try {
@@ -231,13 +239,14 @@ class MainActivity : AppCompatActivity(), SmsListener {
                     val notificationDao = Noti(
                         _id = null,
                         appName = appName,
-                        appBundle = appBundle,
+                        appBundle = PACKAGE_NAME_SMS!!,
                         createTime = createTime,
                         title = title,
                         content = content,
                         checkPush = "true"
                     )
-                    dao.insert(notificationDao)
+                    if(dao.getNotificationWithTime(createTime) == null)
+                        dao.insert(notificationDao)
 
                     Timber.d("post sms  Success!!")
                 }
@@ -245,16 +254,29 @@ class MainActivity : AppCompatActivity(), SmsListener {
                 val notificationDao = Noti(
                     _id = null,
                     appName = appName,
-                    appBundle = appBundle,
+                    appBundle = PACKAGE_NAME_SMS!!,
                     createTime = createTime,
                     title = title,
                     content = content,
                     checkPush = "false"
                 )
-                dao.insert(notificationDao)
+                if(dao.getNotificationWithTime(createTime) == null)
+                    dao.insert(notificationDao)
+                check = false
                 Timber.d("post fail sms server")
             }
-
+            withContext(Dispatchers.Main){
+                adapter.add(
+                    NotificationData(
+                        appName = appName,
+                        appBundle = PACKAGE_NAME_SMS!!,
+                        createTime = createTime,
+                        title = title,
+                        content = content,
+                        check
+                    )
+                )
+            }
         }
 
     }

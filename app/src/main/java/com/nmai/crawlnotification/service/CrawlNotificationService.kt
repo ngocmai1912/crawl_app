@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
+import com.nmai.crawlnotification.MainActivity
 import com.nmai.crawlnotification.post.APIRequest
 import com.nmai.crawlnotification.post.NotificationAPI
 import com.nmai.crawlnotification.repository.Noti
@@ -37,7 +39,7 @@ class CrawlNotificationService : NotificationListenerService() {
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
-        if (nameAppCrawl != applicationName){
+        if (nameAppCrawl != applicationName && appBundle != MainActivity.PACKAGE_NAME_SMS ){
             val postNotifi = NotificationAPI(
                 applicationName,
                 appBundle,
@@ -45,7 +47,6 @@ class CrawlNotificationService : NotificationListenerService() {
                 title,
                 content
             )
-
             var saveNotification = Noti(
                 _id = null,
                 appName = applicationName,
