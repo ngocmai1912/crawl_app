@@ -1,15 +1,18 @@
 package com.nmai.crawlnotification
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,14 +23,17 @@ import com.nmai.crawlnotification.repository.Noti
 import com.nmai.crawlnotification.repository.NotificationDao
 import com.nmai.crawlnotification.repository.NotificationDatabase
 import com.nmai.crawlnotification.service.CrawlNotificationService
+import com.nmai.crawlnotification.service.SmsListener
+import com.nmai.crawlnotification.service.SmsReceiveListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.*
 import kotlin.collections.ArrayList
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SmsListener {
     private lateinit var tv : TextView
     private lateinit var recy : RecyclerView
     private lateinit var adapter : NotificationAdapter
@@ -41,43 +47,47 @@ class MainActivity : AppCompatActivity() {
         val dao = NotificationDatabase.getInstance(application).notificationDao()
 
         //Post data with onClick notification
-        val post =  intent.getStringExtra("post_again_notification")
-        if(post != null){
+        val post = intent.getStringExtra("post_again_notification")
+        if (post != null) {
             postNotificationToServer(dao, post)
         }
 
         setContentView(R.layout.activity_main)
         context = this
+        // set listener for sms receive
+        SmsReceiveListener.bindListener(this)
         val enabledListeners = Settings.Secure.getString(
             this.contentResolver,
             "enabled_notification_listeners"
         )
         var str = CrawlNotificationService().javaClass.toString()
-        if(!enabledListeners.contains(str.subSequence(6, str.length)))
+        if (!enabledListeners.contains(str.subSequence(6, str.length)))
             startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
 
-
+        if (!isSmsPermissionGranted())
+            requestReadSmsPermission()
         recy = findViewById(R.id.list_notification)
         adapter = NotificationAdapter(this)
         recy.apply {
             adapter = this@MainActivity.adapter
             layoutManager = LinearLayoutManager(this@MainActivity)
         }
-        lifecycleScope.launch(Dispatchers.IO){
+        lifecycleScope.launch(Dispatchers.IO) {
             val list = dao.getAll()
             val listNoti = covertModel(list)
 
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 adapter.addAll(listNoti)
             }
         }
 
-        adapter.onClick = {time ->
-            postNotificationToServer(dao,time)
+        adapter.onClick = { time ->
+            postNotificationToServer(dao, time)
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
-    }
 
+
+    }
 
     private val onNotice = object : BroadcastReceiver(){
         @SuppressLint("SimpleDateFormat")
@@ -115,7 +125,14 @@ class MainActivity : AppCompatActivity() {
             var isTrue = true
             if(it.checkPush == "true") isTrue = true
             else if(it.checkPush == "false") isTrue = false
-            val noti = NotificationData(it.appName,it.appBundle,it.createTime,it.title,it.content,isTrue)
+            val noti = NotificationData(
+                it.appName,
+                it.appBundle,
+                it.createTime,
+                it.title,
+                it.content,
+                isTrue
+            )
             list.add(noti)
         }
 
@@ -140,15 +157,15 @@ class MainActivity : AppCompatActivity() {
                     notificationDB.checkPush = "true"
                     dao.update(notificationDB)
                     withContext(Dispatchers.Main){
-                        Toast.makeText(context,"Post notification success!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Post notification success!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            catch (e : Exception){
+            catch (e: Exception){
                 Timber.d("post fail!")
                 withContext(Dispatchers.Main){
                     withContext(Dispatchers.Main){
-                        Toast.makeText(context,"Post fail!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Post fail!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -161,4 +178,41 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    // check permission
+    fun isSmsPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_SMS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+    // set permission
+    private fun requestReadSmsPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.READ_SMS
+            )
+        ) {
+        }
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.READ_SMS),
+            1
+        )
+    }
+
+    // nhan du lieu tu broadreceive
+    override fun messageReceived(
+        appName: String,
+        appBundle: String,
+        createTime: String,
+        title: String,
+        content: String
+    ) {
+        val defaultApplication = Settings.Secure.getString(
+            contentResolver, "sms_default_application"
+        )
+        Timber.d("aaaaaaaaaaaaaaaaaaaaaaa ${appName}, ${defaultApplication}, ${createTime}, ${title}, ${content}")
+    }
+
 }

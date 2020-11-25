@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
     <application
         android:name="com.nmai.crawlnotification.App"
         android:allowBackup="true"
@@ -29,6 +31,11 @@
             </intent-filter>
         </service>
         <service android:name="com.nmai.crawlnotification.service.ForegroundNotificationService"/>
+        <receiver android:name=".service.SmsReceiveListener">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
