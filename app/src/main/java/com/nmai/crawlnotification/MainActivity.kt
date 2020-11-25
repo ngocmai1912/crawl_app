@@ -2,6 +2,7 @@ package com.nmai.crawlnotification
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
@@ -64,8 +65,16 @@ class MainActivity : AppCompatActivity(), SmsListener {
         if (!enabledListeners.contains(str.subSequence(6, str.length)))
             startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
 
-        if (!isSmsPermissionGranted())
-            requestReadSmsPermission()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) requestSmsPermission() else {
+            val smsListener = SmsReceiveListener()
+            val intentFilter = IntentFilter()
+            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
+            registerReceiver(smsListener, intentFilter)
+        }
+
+
+//        if (!isSmsPermissionGranted())
+//            requestReadSmsPermission()
         recy = findViewById(R.id.list_notification)
         adapter = NotificationAdapter(this)
         recy.apply {
@@ -180,12 +189,12 @@ class MainActivity : AppCompatActivity(), SmsListener {
     }
 
     // check permission
-    fun isSmsPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_SMS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+//    private fun isSmsPermissionGranted(): Boolean {
+//        return ContextCompat.checkSelfPermission(
+//            this,
+//            Manifest.permission.READ_SMS
+//        ) == PackageManager.PERMISSION_GRANTED
+//    }
     // set permission
     private fun requestReadSmsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
@@ -210,9 +219,68 @@ class MainActivity : AppCompatActivity(), SmsListener {
         content: String
     ) {
         val defaultApplication = Settings.Secure.getString(
-            contentResolver, "sms_default_application"
+            contentResolver,
+            "sms_default_application"
         )
-        Timber.d("aaaaaaaaaaaaaaaaaaaaaaa ${appName}, ${defaultApplication}, ${createTime}, ${title}, ${content}")
+        val notificationAPI = NotificationAPI(appName,appBundle,createTime,title,content)
+        lifecycleScope.launch(Dispatchers.IO){
+            val dao = NotificationDatabase.getInstance(application).notificationDao()
+            try {
+                val isSuccess = APIRequest.postNotification(notificationAPI)
+                if (isSuccess == 200) {
+                    val notificationDao = Noti(
+                        _id = null,
+                        appName = appName,
+                        appBundle = appBundle,
+                        createTime = createTime,
+                        title = title,
+                        content = content,
+                        checkPush = "true"
+                    )
+                    dao.insert(notificationDao)
+
+                    Timber.d("post sms  Success!!")
+                }
+            }catch (e:Exception){
+                val notificationDao = Noti(
+                    _id = null,
+                    appName = appName,
+                    appBundle = appBundle,
+                    createTime = createTime,
+                    title = title,
+                    content = content,
+                    checkPush = "false"
+                )
+                dao.insert(notificationDao)
+                Timber.d("post fail sms server")
+            }
+
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode === 1) {
+            val smsListener = SmsReceiveListener()
+            val intentFilter = IntentFilter()
+            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
+            registerReceiver(smsListener, intentFilter)
+        }
+    }
+
+    private fun requestSmsPermission() {
+        val permission = Manifest.permission.RECEIVE_SMS
+        val grant = ContextCompat.checkSelfPermission(this, permission)
+        if (grant != PackageManager.PERMISSION_GRANTED) {
+            val permissionList = arrayOfNulls<String>(1)
+            permissionList[0] = permission
+            ActivityCompat.requestPermissions(this, permissionList, 1)
+        }
     }
 
 }
