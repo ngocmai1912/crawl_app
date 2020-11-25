@@ -99,7 +99,5 @@ class CrawlNotificationService : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
        Timber.d("remote notification")
 
-        // stop service show notification
-       //ForegroundNotificationService.stopService(this)
     }
 }

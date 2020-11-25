@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
         )
         context = this
         // set listener for sms receive
-        SmsReceiveListener.bindListener(this)
+        //SmsReceiveListener.bindListener(this)
         val enabledListeners = Settings.Secure.getString(
             this.contentResolver,
             "enabled_notification_listeners"
@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
                 notificationDB.title,
                 notificationDB.content
             )
+
             try {
                 val isSuccess =  APIRequest.postNotification(notificationPost)
                 if (isSuccess == 200) {
@@ -184,23 +185,10 @@ class MainActivity : AppCompatActivity(), SmsListener {
                     }
                 }
             }
-            val list = dao.getAll()
-            val listNoti = covertModel(list)
-
-            withContext(Dispatchers.Main){
-                adapter.addAll(listNoti)
-            }
         }
 
     }
 
-    // check permission
-//    private fun isSmsPermissionGranted(): Boolean {
-//        return ContextCompat.checkSelfPermission(
-//            this,
-//            Manifest.permission.READ_SMS
-//        ) == PackageManager.PERMISSION_GRANTED
-//    }
     // set permission
     private fun requestReadSmsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
@@ -229,7 +217,6 @@ class MainActivity : AppCompatActivity(), SmsListener {
             "sms_default_application"
         )
         var check = true
-        Log.d("aaaaaaaaaaaaa 1", appBundle)
         val notificationAPI = NotificationAPI(appName, PACKAGE_NAME_SMS!!,createTime,title,content)
         lifecycleScope.launch(Dispatchers.IO){
             val dao = NotificationDatabase.getInstance(application).notificationDao()
@@ -278,7 +265,6 @@ class MainActivity : AppCompatActivity(), SmsListener {
                 )
             }
         }
-
     }
 
     override fun onRequestPermissionsResult(
@@ -304,5 +290,4 @@ class MainActivity : AppCompatActivity(), SmsListener {
             ActivityCompat.requestPermissions(this, permissionList, 1)
         }
     }
-
 }
