@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
         )
         context = this
         // set listener for sms receive
-        //SmsReceiveListener.bindListener(this)
+        SmsReceiveListener.bindListener(this)
         val enabledListeners = Settings.Secure.getString(
             this.contentResolver,
             "enabled_notification_listeners"
@@ -273,12 +273,12 @@ class MainActivity : AppCompatActivity(), SmsListener {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode === 1) {
-            val smsListener = SmsReceiveListener()
-            val intentFilter = IntentFilter()
-            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
-            registerReceiver(smsListener, intentFilter)
-        }
+//        if (requestCode === 1) {
+//            val smsListener = SmsReceiveListener()
+//            val intentFilter = IntentFilter()
+//            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
+//            registerReceiver(smsListener, intentFilter)
+//        }
     }
 
     private fun requestSmsPermission() {
