@@ -39,7 +39,9 @@ class SmsReceiveListener : BroadcastReceiver() , SmsListener{
                     )
                 }
             }
-
+        }
+        if (context != null) {
+            SmsService.startService(context)
         }
     }
 

@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
-class CrawlNotificationService : NotificationListenerService(), SmsListener {
+class CrawlNotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         var extras  = sbn.notification.extras
@@ -61,6 +61,7 @@ class CrawlNotificationService : NotificationListenerService(), SmsListener {
                 createTime = postTime.toString()
             )
 
+
             GlobalScope.launch(Dispatchers.IO){
 
                 try {
@@ -84,7 +85,7 @@ class CrawlNotificationService : NotificationListenerService(), SmsListener {
             }
         }
 
-        SmsReceiveListener.bindListener(this)
+
     }
 
     private fun getNameApp(context: Context): String{
@@ -95,48 +96,6 @@ class CrawlNotificationService : NotificationListenerService(), SmsListener {
         )
     }
 
-    override fun messageReceived(
-        appName: String,
-        appBundle: String,
-        createTime: String,
-        title: String,
-        content: String
-    ) {
-        val defaultApplication = Settings.Secure.getString(
-            contentResolver,
-            "sms_default_application"
-        )
-        var check = true
-        val notificationAPI = NotificationAPI(appName, MainActivity.PACKAGE_NAME_SMS!!,createTime,title,content)
-        GlobalScope.launch(Dispatchers.IO){
-            val dao = NotificationDatabase.getInstance(application).notificationDao()
-            var notification = Noti(
-                _id = null,
-                appName = appName,
-                appBundle = MainActivity.PACKAGE_NAME_SMS!!,
-                createTime = createTime,
-                title = title,
-                content = content,
-                checkPush = "true"
-            )
-            try {
-                val isSuccess = APIRequest.postNotification(notificationAPI)
-
-                if (isSuccess == 200) {
-                    dao.insert(notification)
-                    senBroadcastNotification(notification)
-                    Timber.d("post sms  Success!!")
-                }
-            }catch (e:Exception){
-                notification.checkPush = "false"
-                dao.insert(notification)
-                senBroadcastNotification(notification)
-
-                check = false
-                Timber.d("post fail sms server")
-            }
-        }
-    }
     private fun senBroadcastNotification(notification: Noti){
         val intent = Intent("MessageReceiver")
         intent.putExtra("AppBundle", notification.appBundle)
@@ -147,5 +106,10 @@ class CrawlNotificationService : NotificationListenerService(), SmsListener {
         intent.putExtra("CheckPush", notification.checkPush)
         sendBroadcast(intent)
         Timber.d("send toi activity")
+    }
+
+    override fun stopService(name: Intent?): Boolean {
+        Timber.d("stop service")
+        return super.stopService(name)
     }
 }

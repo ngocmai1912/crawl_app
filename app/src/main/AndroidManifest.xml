@@ -31,7 +31,7 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-        <service android:name="com.nmai.crawlnotification.service.ForegroundNotificationService"/>
+        <service android:name=".service.SmsService"/>
         <receiver android:name=".service.SmsReceiveListener">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />

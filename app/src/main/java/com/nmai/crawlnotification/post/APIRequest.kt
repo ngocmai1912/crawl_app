@@ -6,18 +6,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings.Global.getString
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nmai.crawlnotification.MainActivity
 import com.nmai.crawlnotification.R
 import com.nmai.crawlnotification.repository.Noti
-import com.nmai.crawlnotification.service.ForegroundNotificationService
 import okhttp3.*
-import timber.log.Timber
 
 class APIRequest {
     companion object {
