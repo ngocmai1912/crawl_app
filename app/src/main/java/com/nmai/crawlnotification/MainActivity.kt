@@ -35,7 +35,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class MainActivity : AppCompatActivity(), SmsListener {
+class MainActivity : AppCompatActivity() {
     private lateinit var tv : TextView
     private lateinit var recy : RecyclerView
     private lateinit var adapter : NotificationAdapter
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
         )
         context = this
         // set listener for sms receive
-        SmsReceiveListener.bindListener(this)
+        //SmsReceiveListener.bindListener(this)
         val enabledListeners = Settings.Secure.getString(
             this.contentResolver,
             "enabled_notification_listeners"
@@ -71,12 +71,7 @@ class MainActivity : AppCompatActivity(), SmsListener {
         if (!enabledListeners.contains(str.subSequence(6, str.length)))
             startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) requestSmsPermission() else {
-            val smsListener = SmsReceiveListener()
-            val intentFilter = IntentFilter()
-            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
-            registerReceiver(smsListener, intentFilter)
-        }
+        requestSmsPermission()
 
 
 //        if (!isSmsPermissionGranted())
@@ -205,67 +200,67 @@ class MainActivity : AppCompatActivity(), SmsListener {
     }
 
     // nhan du lieu tu broadreceive
-    override fun messageReceived(
-        appName: String,
-        appBundle: String,
-        createTime: String,
-        title: String,
-        content: String
-    ) {
-        val defaultApplication = Settings.Secure.getString(
-            contentResolver,
-            "sms_default_application"
-        )
-        var check = true
-        val notificationAPI = NotificationAPI(appName, PACKAGE_NAME_SMS!!,createTime,title,content)
-        lifecycleScope.launch(Dispatchers.IO){
-            val dao = NotificationDatabase.getInstance(application).notificationDao()
-            try {
-                val isSuccess = APIRequest.postNotification(notificationAPI)
-                if (isSuccess == 200) {
-                    val notificationDao = Noti(
-                        _id = null,
-                        appName = appName,
-                        appBundle = PACKAGE_NAME_SMS!!,
-                        createTime = createTime,
-                        title = title,
-                        content = content,
-                        checkPush = "true"
-                    )
-                    if(dao.getNotificationWithTime(createTime) == null)
-                        dao.insert(notificationDao)
-
-                    Timber.d("post sms  Success!!")
-                }
-            }catch (e:Exception){
-                val notificationDao = Noti(
-                    _id = null,
-                    appName = appName,
-                    appBundle = PACKAGE_NAME_SMS!!,
-                    createTime = createTime,
-                    title = title,
-                    content = content,
-                    checkPush = "false"
-                )
-                if(dao.getNotificationWithTime(createTime) == null)
-                    dao.insert(notificationDao)
-                check = false
-                Timber.d("post fail sms server")
-            }
-            withContext(Dispatchers.Main){
-                adapter.add(
-                    NotificationData(
-                        appName = appName,
-                        appBundle = PACKAGE_NAME_SMS!!,
-                        createTime = createTime,
-                        title = title,
-                        content = content,
-                        check
-                    )
-                )
-            }
-        }
-    }
+//    override fun messageReceived(
+//        appName: String,
+//        appBundle: String,
+//        createTime: String,
+//        title: String,
+//        content: String
+//    ) {
+//        val defaultApplication = Settings.Secure.getString(
+//            contentResolver,
+//            "sms_default_application"
+//        )
+//        var check = true
+//        val notificationAPI = NotificationAPI(appName, PACKAGE_NAME_SMS!!,createTime,title,content)
+//        lifecycleScope.launch(Dispatchers.IO){
+//            val dao = NotificationDatabase.getInstance(application).notificationDao()
+//            try {
+//                val isSuccess = APIRequest.postNotification(notificationAPI)
+//                if (isSuccess == 200) {
+//                    val notificationDao = Noti(
+//                        _id = null,
+//                        appName = appName,
+//                        appBundle = PACKAGE_NAME_SMS!!,
+//                        createTime = createTime,
+//                        title = title,
+//                        content = content,
+//                        checkPush = "true"
+//                    )
+//                    if(dao.getNotificationWithTime(createTime) == null)
+//                        dao.insert(notificationDao)
+//
+//                    Timber.d("post sms  Success!!")
+//                }
+//            }catch (e:Exception){
+//                val notificationDao = Noti(
+//                    _id = null,
+//                    appName = appName,
+//                    appBundle = PACKAGE_NAME_SMS!!,
+//                    createTime = createTime,
+//                    title = title,
+//                    content = content,
+//                    checkPush = "false"
+//                )
+//                if(dao.getNotificationWithTime(createTime) == null)
+//                    dao.insert(notificationDao)
+//                check = false
+//                Timber.d("post fail sms server")
+//            }
+//            withContext(Dispatchers.Main){
+//                adapter.add(
+//                    NotificationData(
+//                        appName = appName,
+//                        appBundle = PACKAGE_NAME_SMS!!,
+//                        createTime = createTime,
+//                        title = title,
+//                        content = content,
+//                        check
+//                    )
+//                )
+//            }
+//        }
+//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -273,12 +268,6 @@ class MainActivity : AppCompatActivity(), SmsListener {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (requestCode === 1) {
-//            val smsListener = SmsReceiveListener()
-//            val intentFilter = IntentFilter()
-//            intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED")
-//            registerReceiver(smsListener, intentFilter)
-//        }
     }
 
     private fun requestSmsPermission() {

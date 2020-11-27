@@ -8,7 +8,7 @@ import android.telephony.SmsMessage
 import timber.log.Timber
 
 
-class SmsReceiveListener : BroadcastReceiver() {
+class SmsReceiveListener : BroadcastReceiver() , SmsListener{
 
     companion object{
         var listener : SmsListener? = null
@@ -41,6 +41,16 @@ class SmsReceiveListener : BroadcastReceiver() {
             }
 
         }
+    }
+
+    override fun messageReceived(
+        appName: String,
+        appBundle: String,
+        createTime: String,
+        title: String,
+        content: String
+    ) {
+        TODO("Not yet implemented")
     }
 
 }

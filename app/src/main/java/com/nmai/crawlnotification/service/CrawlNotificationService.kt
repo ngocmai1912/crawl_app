@@ -4,13 +4,17 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.nmai.crawlnotification.MainActivity
+import com.nmai.crawlnotification.model.NotificationData
 import com.nmai.crawlnotification.post.APIRequest
 import com.nmai.crawlnotification.post.NotificationAPI
 import com.nmai.crawlnotification.repository.Noti
+import com.nmai.crawlnotification.repository.NotificationDao
 import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,7 +23,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
-class CrawlNotificationService : NotificationListenerService() {
+class CrawlNotificationService : NotificationListenerService(), SmsListener {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         var extras  = sbn.notification.extras
@@ -76,16 +80,11 @@ class CrawlNotificationService : NotificationListenerService() {
 
                 val dao = NotificationDatabase.getInstance(application).notificationDao()
                 dao.insert(saveNotification)
-                val intent = Intent("MessageReceiver")
-                intent.putExtra("AppBundle", appBundle)
-                intent.putExtra("CreateTime", postTime.toString())
-                intent.putExtra("Title", title)
-                intent.putExtra("Content", content)
-                intent.putExtra("AppName", applicationName)
-                intent.putExtra("CheckPush", saveNotification.checkPush)
-                sendBroadcast(intent)
+                senBroadcastNotification(saveNotification)
             }
         }
+
+        SmsReceiveListener.bindListener(this)
     }
 
     private fun getNameApp(context: Context): String{
@@ -96,8 +95,57 @@ class CrawlNotificationService : NotificationListenerService() {
         )
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification) {
-       Timber.d("remote notification")
+    override fun messageReceived(
+        appName: String,
+        appBundle: String,
+        createTime: String,
+        title: String,
+        content: String
+    ) {
+        val defaultApplication = Settings.Secure.getString(
+            contentResolver,
+            "sms_default_application"
+        )
+        var check = true
+        val notificationAPI = NotificationAPI(appName, MainActivity.PACKAGE_NAME_SMS!!,createTime,title,content)
+        GlobalScope.launch(Dispatchers.IO){
+            val dao = NotificationDatabase.getInstance(application).notificationDao()
+            var notification = Noti(
+                _id = null,
+                appName = appName,
+                appBundle = MainActivity.PACKAGE_NAME_SMS!!,
+                createTime = createTime,
+                title = title,
+                content = content,
+                checkPush = "true"
+            )
+            try {
+                val isSuccess = APIRequest.postNotification(notificationAPI)
 
+                if (isSuccess == 200) {
+                    dao.insert(notification)
+                    senBroadcastNotification(notification)
+                    Timber.d("post sms  Success!!")
+                }
+            }catch (e:Exception){
+                notification.checkPush = "false"
+                dao.insert(notification)
+                senBroadcastNotification(notification)
+
+                check = false
+                Timber.d("post fail sms server")
+            }
+        }
+    }
+    private fun senBroadcastNotification(notification: Noti){
+        val intent = Intent("MessageReceiver")
+        intent.putExtra("AppBundle", notification.appBundle)
+        intent.putExtra("CreateTime", notification.createTime)
+        intent.putExtra("Title", notification.title)
+        intent.putExtra("Content", notification.content)
+        intent.putExtra("AppName", notification.appName)
+        intent.putExtra("CheckPush", notification.checkPush)
+        sendBroadcast(intent)
+        Timber.d("send toi activity")
     }
 }
