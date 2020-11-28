@@ -9,6 +9,7 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import com.nmai.crawlnotification.MainActivity
 import com.nmai.crawlnotification.post.APIRequest
 import com.nmai.crawlnotification.post.NotificationAPI
@@ -33,7 +34,7 @@ class SmsService : Service(), SmsListener {
         @RequiresApi(Build.VERSION_CODES.O)
         fun startService(context: Context){
             val smsService : Intent = Intent(context, SmsService::class.java)
-            context.startForegroundService(smsService)
+            context.startService(smsService)
 
             Timber.d("sms visible")
         }
@@ -54,7 +55,7 @@ class SmsService : Service(), SmsListener {
                 PendingIntent.getActivities(this, 0, arrayOf(smsIntent), 0)
             }
 
-        val notification : Notification =  Notification.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
+        val notification : Notification =  NotificationCompat.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
             .setContentTitle("App crawl")
             .setContentText("send sms")
             .setContentIntent(pendingIntent)
@@ -65,7 +66,7 @@ class SmsService : Service(), SmsListener {
         SmsReceiveListener.bindListener(this)
         startForeground(ID_NOTIFICATION_CRAWL, notification)
 
-        val countDownTimer = object : CountDownTimer(10000, 1000) {
+        val countDownTimer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
             }
