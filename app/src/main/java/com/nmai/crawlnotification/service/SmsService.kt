@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.IBinder
 import android.provider.Settings
 import androidx.annotation.RequiresApi
@@ -31,14 +32,14 @@ class SmsService : Service(), SmsListener {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun startService(context: Context){
-            val smsService : Intent = Intent(context,SmsService::class.java)
+            val smsService : Intent = Intent(context, SmsService::class.java)
             context.startForegroundService(smsService)
 
             Timber.d("sms visible")
         }
 
         fun stopService(context: Context){
-            val smsService : Intent = Intent(context,SmsService::class.java)
+            val smsService : Intent = Intent(context, SmsService::class.java)
             context.stopService(smsService)
         }
 
@@ -59,10 +60,23 @@ class SmsService : Service(), SmsListener {
             .setContentIntent(pendingIntent)
             .build()
 
-        startForeground(ID_NOTIFICATION_CRAWL, notification)
         Timber.d("send sms")
 
         SmsReceiveListener.bindListener(this)
+
+        val countDownTimer = object : CountDownTimer(10000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
+                startForeground(ID_NOTIFICATION_CRAWL, notification)
+            }
+
+            override fun onFinish() {
+                stopSelf()
+                Timber.d("finish service - stop")
+            }
+        }
+
+        countDownTimer.start()
         return START_NOT_STICKY
     }
 
@@ -91,7 +105,13 @@ class SmsService : Service(), SmsListener {
             "sms_default_application"
         )
         var check = true
-        val notificationAPI = NotificationAPI(appName, MainActivity.PACKAGE_NAME_SMS!!,createTime,title,content)
+        val notificationAPI = NotificationAPI(
+            appName,
+            MainActivity.PACKAGE_NAME_SMS!!,
+            createTime,
+            title,
+            content
+        )
         GlobalScope.launch(Dispatchers.IO){
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             var notification = Noti(
@@ -111,7 +131,7 @@ class SmsService : Service(), SmsListener {
                     senBroadcastNotification(notification)
                     Timber.d("post sms  Success!!")
                 }
-            }catch (e:Exception){
+            }catch (e: Exception){
                 notification.checkPush = "false"
                 dao.insert(notification)
                 senBroadcastNotification(notification)
