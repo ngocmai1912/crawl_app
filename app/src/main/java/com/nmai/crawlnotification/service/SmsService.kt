@@ -63,11 +63,11 @@ class SmsService : Service(), SmsListener {
         Timber.d("send sms")
 
         SmsReceiveListener.bindListener(this)
+        startForeground(ID_NOTIFICATION_CRAWL, notification)
 
         val countDownTimer = object : CountDownTimer(10000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
-                startForeground(ID_NOTIFICATION_CRAWL, notification)
             }
 
             override fun onFinish() {
