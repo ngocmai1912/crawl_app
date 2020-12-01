@@ -20,7 +20,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class SmsService : Service(), SmsListener {
+class SmsService : Service() {
     override fun onBind(p0: Intent?): IBinder? {
         return Binder()
     }
@@ -32,8 +32,14 @@ class SmsService : Service(), SmsListener {
     companion object {
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun startService(context: Context){
+        fun startService(context: Context,appName: String, appBundle: String,createTime: String,title: String,content: String){
             val smsService : Intent = Intent(context, SmsService::class.java)
+            smsService.putExtra("app_name",appName)
+            smsService.putExtra("app_bundle",appBundle)
+            smsService.putExtra("create_time",createTime)
+            smsService.putExtra("title",title)
+            smsService.putExtra("content",content)
+
             context.startService(smsService)
 
             Timber.d("sms visible")
@@ -48,6 +54,12 @@ class SmsService : Service(), SmsListener {
     //ko bao h stop
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val appName = intent?.getStringExtra("app_name")
+        val appBundle = intent?.getStringExtra("app_bundle")
+        val createTime = intent?.getStringExtra("create_time")
+        val title = intent?.getStringExtra("title")
+        val content = intent?.getStringExtra("content")
+
 
         createNotificationChanel()
         val pendingIntent : PendingIntent =
@@ -63,57 +75,18 @@ class SmsService : Service(), SmsListener {
 
         Timber.d("send sms")
 
-        SmsReceiveListener.bindListener(this)
         startForeground(ID_NOTIFICATION_CRAWL, notification)
 
-        val countDownTimer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
-            }
-
-            override fun onFinish() {
-                stopSelf()
-                Timber.d("finish service - stop")
-            }
-        }
-
-        countDownTimer.start()
-        return START_NOT_STICKY
-    }
-
-    private fun createNotificationChanel(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val channel =
-                NotificationChannel(CHANNEL_NOTIFICATION_SERVICE, NAME_CHANNEL, importance).apply {
-                    description = DESCRIPTION_TEXT
-                }
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    override fun messageReceived(
-        appName: String,
-        appBundle: String,
-        createTime: String,
-        title: String,
-        content: String
-    ) {
-        val defaultApplication = Settings.Secure.getString(
-            contentResolver,
-            "sms_default_application"
-        )
-        var check = true
-        val notificationAPI = NotificationAPI(
-            appName,
-            MainActivity.PACKAGE_NAME_SMS!!,
-            createTime,
-            title,
-            content
-        )
         GlobalScope.launch(Dispatchers.IO){
+            var check = true
+            val notificationAPI = NotificationAPI(
+                appName,
+                MainActivity.PACKAGE_NAME_SMS!!,
+                createTime,
+                title,
+                content
+            )
+
             val dao = NotificationDatabase.getInstance(application).notificationDao()
             var notification = Noti(
                 _id = null,
@@ -129,30 +102,45 @@ class SmsService : Service(), SmsListener {
 
                 if (isSuccess == 200) {
                     dao.insert(notification)
-                    senBroadcastNotification(notification)
-                    Timber.d("post sms  Success!!")
+                    //senBroadcastNotification(notification)
+                    Timber.d("post sms  Success!!'")
                 }
             }catch (e: Exception){
                 notification.checkPush = "false"
                 dao.insert(notification)
-                senBroadcastNotification(notification)
+                //senBroadcastNotification(notification)
 
                 check = false
                 Timber.d("post fail sms server")
             }
         }
+
+        val countDownTimer = object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
+            }
+            override fun onFinish() {
+                stopSelf()
+                Timber.d("finish service - stop")
+            }
+
+        }
+
+        countDownTimer.start()
+        return START_STICKY
     }
 
-    private fun senBroadcastNotification(notification: Noti){
-        val intent = Intent("MessageReceiver")
-        intent.putExtra("AppBundle", notification.appBundle)
-        intent.putExtra("CreateTime", notification.createTime)
-        intent.putExtra("Title", notification.title)
-        intent.putExtra("Content", notification.content)
-        intent.putExtra("AppName", notification.appName)
-        intent.putExtra("CheckPush", notification.checkPush)
-        sendBroadcast(intent)
-        Timber.d("send toi activity")
+    private fun createNotificationChanel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val channel =
+                NotificationChannel(CHANNEL_NOTIFICATION_SERVICE, NAME_CHANNEL, importance).apply {
+                    description = DESCRIPTION_TEXT
+                }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
 }

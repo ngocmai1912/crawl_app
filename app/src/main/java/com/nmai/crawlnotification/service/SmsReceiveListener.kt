@@ -5,18 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.telephony.SmsMessage
+import androidx.annotation.RequiresApi
+import com.nmai.crawlnotification.repository.NotificationDatabase
 import timber.log.Timber
 
 
-class SmsReceiveListener : BroadcastReceiver() , SmsListener{
+class SmsReceiveListener : BroadcastReceiver() {
 
-    companion object{
-        var listener : SmsListener? = null
-        fun bindListener(l: SmsListener){
-            listener = l
-        }
-    }
+
     // lay data tu tin nhan moi nhan
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent) {
         if (intent.action.equals("android.provider.Telephony.SMS_RECEIVED")){
             val data = intent.extras
@@ -29,30 +27,14 @@ class SmsReceiveListener : BroadcastReceiver() , SmsListener{
                 val title =  smsMessage.displayOriginatingAddress.toString()
                 val createTime = smsMessage.timestampMillis.toString()
                 val content = smsMessage.messageBody.toString()
-                listener?.let{
-                    it.messageReceived(
-                        "Tin nhắn",
-                        "sms",
-                        createTime,
-                        title,
-                        content
-                    )
+                val appName = "Tin nhắn"
+                val appBundle = "sms"
+
+                if (context != null) {
+                    SmsService.startService(context,appName,appBundle,createTime,title,content)
                 }
             }
         }
-        if (context != null) {
-            SmsService.startService(context)
-        }
-    }
-
-    override fun messageReceived(
-        appName: String,
-        appBundle: String,
-        createTime: String,
-        title: String,
-        content: String
-    ) {
-        TODO("Not yet implemented")
     }
 
 }

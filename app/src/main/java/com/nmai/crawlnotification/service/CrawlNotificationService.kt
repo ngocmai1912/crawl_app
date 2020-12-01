@@ -36,8 +36,6 @@ class CrawlNotificationService : NotificationListenerService() {
         val ai: ApplicationInfo?
         ai = pm.getApplicationInfo(sbn.packageName, 0)
 
-
-
         val nameAppCrawl = getNameApp(this)
 
         val applicationName =
@@ -81,7 +79,6 @@ class CrawlNotificationService : NotificationListenerService() {
 
                 val dao = NotificationDatabase.getInstance(application).notificationDao()
                 dao.insert(saveNotification)
-                senBroadcastNotification(saveNotification)
             }
         }
 
@@ -94,18 +91,6 @@ class CrawlNotificationService : NotificationListenerService() {
         return if (stringId === 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(
             stringId
         )
-    }
-
-    private fun senBroadcastNotification(notification: Noti){
-        val intent = Intent("MessageReceiver")
-        intent.putExtra("AppBundle", notification.appBundle)
-        intent.putExtra("CreateTime", notification.createTime)
-        intent.putExtra("Title", notification.title)
-        intent.putExtra("Content", notification.content)
-        intent.putExtra("AppName", notification.appName)
-        intent.putExtra("CheckPush", notification.checkPush)
-        sendBroadcast(intent)
-        Timber.d("send toi activity")
     }
 
     override fun stopService(name: Intent?): Boolean {

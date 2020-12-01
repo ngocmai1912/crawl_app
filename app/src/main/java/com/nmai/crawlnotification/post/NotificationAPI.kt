@@ -5,13 +5,13 @@ import java.io.Serializable
 
 data class NotificationAPI(
     @SerializedName("app_name")
-    val appName: String,
+    val appName: String?,
     @SerializedName("app_bundle")
-    val appBundle: String,
+    val appBundle: String?,
     @SerializedName("time")
-    val time: String,
+    val time: String?,
     @SerializedName("title")
-    val title: String,
+    val title: String?,
     @SerializedName("content")
-    val content: String
+    val content: String?
 ): Serializable

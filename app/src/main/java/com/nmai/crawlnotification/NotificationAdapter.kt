@@ -8,15 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.nmai.crawlnotification.model.NotificationData
+import timber.log.Timber
 import java.util.*
 
 class NotificationAdapter(
     val context: Context
-) : RecyclerView.Adapter<NotificationAdapter.NotificationHolder>() {
-    lateinit var onClick : (time: String) -> Unit
-    var listNotification = mutableListOf<NotificationData>()
+) : ListAdapter<NotificationData,NotificationAdapter.NotificationHolder>(NotificationAdapter.NotificationDifUtil){
+
     inner class NotificationHolder(val view : View) : RecyclerView.ViewHolder(view){
         private var tvAppName : TextView = view.findViewById(R.id.tv_app_name)
         private var tvTitle : TextView = view.findViewById(R.id.tv_title)
@@ -31,7 +33,7 @@ class NotificationAdapter(
 
             val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss a")
             val date = Date()
-            date.time = notificationData.createTime.toLong()
+            date.time = notificationData.createTime!!.toLong()
             val createTime = sdf.format(date)
             tvCreateTime.text = createTime
 
@@ -46,25 +48,37 @@ class NotificationAdapter(
                 im.setBackgroundResource(R.drawable.ic_success)
             }
             itemView.setOnClickListener {
-                if(!notificationData.checkPush){
-                    onClick(notificationData.createTime)
+                if (notificationData.checkPush == false){
+                    notificationData.createTime?.let { it1 -> onClick(it1) }
                 }
-                else{
-                    Toast.makeText(context, "Notification is posted!", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context,"Posting ...",Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
-    fun addAll(list : List<NotificationData>){
-        listNotification.clear()
-        listNotification.addAll(list)
-        notifyDataSetChanged()
+    object NotificationDifUtil: DiffUtil.ItemCallback<NotificationData>(){
+        override fun areItemsTheSame(
+            oldItem: NotificationData,
+            newItem: NotificationData
+        ): Boolean {
+            return oldItem.checkPush == newItem.checkPush
+        }
+
+        override fun areContentsTheSame(
+            oldItem: NotificationData,
+            newItem: NotificationData
+        ): Boolean {
+            return  oldItem == newItem
+        }
+
     }
+
+    lateinit var onClick : (time: String) -> Unit
+    var listNotification = mutableListOf<NotificationData>()
 
     fun add(notificationData: NotificationData){
-        listNotification.add(notificationData)
-        notifyDataSetChanged()
+        currentList.add(notificationData)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationHolder {
         var view = LayoutInflater.from(context).inflate(R.layout.notification_item, parent,false)
@@ -72,10 +86,7 @@ class NotificationAdapter(
     }
 
     override fun onBindViewHolder(holder: NotificationHolder, position: Int) {
-        return holder.bind(listNotification[listNotification.size-1- position])
+        return holder.bind(getItem(position))
     }
 
-    override fun getItemCount(): Int {
-        return listNotification.size
-    }
 }
