@@ -167,9 +167,13 @@ class MainActivity : AppCompatActivity() {
                     Timber.d("post notification Success!!")
                     notificationDB.checkPush = "true"
                     dao.update(notificationDB)
+                    val list = dao.getAll()
+                    val listNoti = covertModel(list)
                     withContext(Dispatchers.Main){
+                        adapter.addAll(listNoti)
                         Toast.makeText(context, "Post notification success!", Toast.LENGTH_SHORT).show()
                     }
+
                 }
             }
             catch (e: Exception){
@@ -180,6 +184,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
         }
 
     }

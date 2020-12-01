@@ -9,6 +9,7 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import com.nmai.crawlnotification.MainActivity
 import com.nmai.crawlnotification.post.APIRequest
 import com.nmai.crawlnotification.post.NotificationAPI
@@ -33,8 +34,26 @@ class SmsService : Service(), SmsListener {
         @RequiresApi(Build.VERSION_CODES.O)
         fun startService(context: Context){
             val smsService : Intent = Intent(context, SmsService::class.java)
-            context.startForegroundService(smsService)
-
+            //c
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                context.startForegroundService(smsService)
+            else{
+//                createNotificationChanel()
+//                val pendingIntent : PendingIntent =
+//                    Intent(this, MainActivity::class.java).let { smsIntent ->
+//                        PendingIntent.getActivities(this, 0, arrayOf(smsIntent), 0)
+//                    }
+//
+//                val notification : Notification =  Notification.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
+//                    .setContentTitle("App crawl")
+//                    .setContentText("send sms")
+//                    .setContentIntent(pendingIntent)
+//                    .build()
+//
+//                SmsReceiveListener.bindListener(this)
+//                startForeground(ID_NOTIFICATION_CRAWL, notification)
+                context.startService(smsService)
+            }
             Timber.d("sms visible")
         }
 
@@ -45,6 +64,7 @@ class SmsService : Service(), SmsListener {
 
     }
     //ko bao h stop
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -54,7 +74,7 @@ class SmsService : Service(), SmsListener {
                 PendingIntent.getActivities(this, 0, arrayOf(smsIntent), 0)
             }
 
-        val notification : Notification =  Notification.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
+        val notification : Notification =  NotificationCompat.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
             .setContentTitle("App crawl")
             .setContentText("send sms")
             .setContentIntent(pendingIntent)
