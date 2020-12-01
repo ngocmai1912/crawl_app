@@ -34,26 +34,8 @@ class SmsService : Service(), SmsListener {
         @RequiresApi(Build.VERSION_CODES.O)
         fun startService(context: Context){
             val smsService : Intent = Intent(context, SmsService::class.java)
-            //c
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                context.startForegroundService(smsService)
-            else{
-//                createNotificationChanel()
-//                val pendingIntent : PendingIntent =
-//                    Intent(this, MainActivity::class.java).let { smsIntent ->
-//                        PendingIntent.getActivities(this, 0, arrayOf(smsIntent), 0)
-//                    }
-//
-//                val notification : Notification =  Notification.Builder(this, CHANNEL_NOTIFICATION_SERVICE)
-//                    .setContentTitle("App crawl")
-//                    .setContentText("send sms")
-//                    .setContentIntent(pendingIntent)
-//                    .build()
-//
-//                SmsReceiveListener.bindListener(this)
-//                startForeground(ID_NOTIFICATION_CRAWL, notification)
-                context.startService(smsService)
-            }
+            context.startService(smsService)
+
             Timber.d("sms visible")
         }
 
@@ -64,7 +46,6 @@ class SmsService : Service(), SmsListener {
 
     }
     //ko bao h stop
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
