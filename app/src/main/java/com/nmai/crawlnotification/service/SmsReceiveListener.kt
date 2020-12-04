@@ -3,10 +3,12 @@ package com.nmai.crawlnotification.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.telephony.SmsMessage
+import android.util.Log
 import androidx.annotation.RequiresApi
 import timber.log.Timber
 
@@ -38,7 +40,10 @@ class SmsReceiveListener : BroadcastReceiver() {
                     context?.contentResolver,
                     "sms_default_application"
                 )
-                val appName = "Tin nhắn"
+                val pm = context?.applicationContext?.packageManager
+                val ai: ApplicationInfo? = pm?.getApplicationInfo(PACKAGE_NAME_SMS, 0)
+                val appName =
+                    (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
                 val appBundle = PACKAGE_NAME_SMS
 
 //                listener?.let{
@@ -57,7 +62,7 @@ class SmsReceiveListener : BroadcastReceiver() {
                 bundle.putString("create_time",createTime)
                 bundle.putString("title",title)
                 bundle.putString("content",content)
-
+              //  Log.d("1ghyughj", "${appBundle} 1 ${appName.toString()} 2 ${ai?.packageName.toString()}")
                 if (context != null) {
                     SmsService.startService(context,bundle)
                 }

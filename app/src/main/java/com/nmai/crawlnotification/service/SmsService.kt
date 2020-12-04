@@ -32,7 +32,8 @@ class SmsService : Service() {
         fun startService(context: Context, bundle: Bundle){
             val smsService : Intent = Intent(context, SmsService::class.java)
             smsService.putExtra("notification",bundle)
-            context.startForegroundService(smsService)
+            //context.startForegroundService(smsService)
+            context.startService(smsService)
 
             Timber.d("sms visible")
         }

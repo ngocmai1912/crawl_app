@@ -26,6 +26,10 @@ import timber.log.Timber
 class CrawlNotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        val PACKAGE_NAME_SMS = Settings.Secure.getString(
+            applicationContext.contentResolver,
+            "sms_default_application"
+        )
         var extras  = sbn.notification.extras
         var appBundle = sbn.packageName
         var postTime = sbn.postTime
@@ -33,17 +37,14 @@ class CrawlNotificationService : NotificationListenerService() {
         var title = extras.get(Notification.EXTRA_TITLE).toString()
         var content = extras.get(Notification.EXTRA_TEXT).toString()
         val pm = applicationContext.packageManager
-        val ai: ApplicationInfo?
-        ai = pm.getApplicationInfo(sbn.packageName, 0)
-
-
+        val ai: ApplicationInfo? = pm.getApplicationInfo(sbn.packageName, 0)
 
         val nameAppCrawl = getNameApp(this)
 
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
-        if (nameAppCrawl != applicationName){
+        if (applicationName != nameAppCrawl && appBundle != PACKAGE_NAME_SMS ){
             val postNotifi = NotificationAPI(
                 applicationName,
                 appBundle,
