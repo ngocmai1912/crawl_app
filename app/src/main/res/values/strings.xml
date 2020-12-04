@@ -10,5 +10,7 @@
     <string name="create_time">Create time</string>
     <string name="title">Title</string>
     <string name="content">Content</string>
+    <string name="name_app">Crawl Notification</string>
+    <string name="send_again">Send again</string>
 
 </resources>

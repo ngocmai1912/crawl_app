@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -92,7 +93,44 @@ class MainActivity : AppCompatActivity() {
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
 
+        //gui lai all notify bi fail
+        val btnSendAll = findViewById<Button>(R.id.btn_Send_all)
+        btnSendAll.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO){
+                val list = dao.getNotificationFailPost("false")
+                list.forEach {
+                    val notificationPost = NotificationAPI(
+                        it.appName,
+                        it.appBundle,
+                        it.createTime,
+                        it.title,
+                        it.content
+                    )
 
+                    try {
+                        val isSuccess =  APIRequest.postNotification(notificationPost)
+                        if (isSuccess == 200) {
+                            Timber.d("post notification Success!!")
+                            it.checkPush = "true"
+                            dao.update(it)
+                        }
+                    }
+                    catch (e: Exception){
+                        Timber.d("post fail!")
+                        withContext(Dispatchers.Main){
+                            withContext(Dispatchers.Main){
+                                Toast.makeText(context, "Post fail!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+                val listNew = dao.getAll()
+                val listNoti = covertModel(listNew)
+                withContext(Dispatchers.Main){
+                    adapter.addAll(listNoti)
+                }
+            }
+        }
     }
 
     private val onNotice = object : BroadcastReceiver(){
