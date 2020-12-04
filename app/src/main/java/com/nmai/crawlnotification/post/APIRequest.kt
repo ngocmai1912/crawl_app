@@ -56,7 +56,7 @@ class APIRequest {
         }
 
         /**
-         * @param notificationLog post notification
+         * @param notificationAPI post notification
          * @return  True is post successfull
          * @return False is not post
          * */
@@ -66,7 +66,7 @@ class APIRequest {
             val notificationToJson = Gson().toJson(notificationAPI)
             val body = RequestBody.create(mediaType, notificationToJson)
             val request: Request = Request.Builder()
-                .url(URL_TEST + URL_NOTIFICATION_TEST)
+                .url(URL + URL_NOTIFICATION)
                 .method(POST, body)
                 .addHeader("Content-Type", "application/json")
                 .build()
@@ -74,16 +74,6 @@ class APIRequest {
             val response = client.newCall(request).execute()
 
             return response.code()
-        }
-
-        fun transformNotification(noti: Noti) : NotificationAPI{
-            return NotificationAPI(
-                appName = noti.appName,
-                appBundle = noti.appBundle,
-                time = noti.createTime,
-                title = noti.title,
-                content = noti.content
-            )
         }
 
         fun postNotificationWithFail(appName :String, time: String,context: Context){

@@ -55,13 +55,15 @@ class MainActivity : AppCompatActivity() {
 
         val dao = NotificationDatabase.getInstance(application).notificationDao()
 
+        setContentView(R.layout.activity_main)
+
         //Post data with onClick notification
         val post = intent.getStringExtra("post_again_notification")
         if (post != null) {
             postNotificationToServer(dao, post)
+            Timber.d("post notify")
         }
 
-        setContentView(R.layout.activity_main)
         tvNumberFail = findViewById(R.id.number_fail)
         load = findViewById(R.id.load_view)
         getFailNumber(dao)
@@ -99,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
         adapter.onClick = { time ->
             postNotificationToServer(dao, time)
+           // getFailNumber(dao)
         }
         registerReceiver(onNotice, IntentFilter("MessageReceiver"))
 
@@ -135,12 +138,11 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-
                 }
-                getFailNumber(dao)
                 val listNew = dao.getAll()
                 val listNoti = covertModel(listNew)
                 withContext(Dispatchers.Main){
+                    getFailNumber(dao)
                     adapter.addAll(listNoti)
                 }
                // load.visibility = View.GONE
@@ -242,8 +244,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
+            val countFail = dao.getCount()
+            withContext(Dispatchers.Main){
+                tvNumberFail.text = countFail.toString()
+            }
         }
-        getFailNumber(dao)
     }
 
     private fun getFailNumber(dao:NotificationDao){

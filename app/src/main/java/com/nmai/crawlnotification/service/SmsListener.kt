@@ -8,5 +8,4 @@ interface SmsListener {
         title : String,
         content : String
     )
-
 }
