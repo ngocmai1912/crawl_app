@@ -9,9 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -45,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recy : RecyclerView
     private lateinit var adapter : NotificationAdapter
     private lateinit var tvNumberFail : TextView
+    private lateinit var load : RelativeLayout
     companion object{
         var context : Context? = null
     }
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         tvNumberFail = findViewById(R.id.number_fail)
-
+        load = findViewById(R.id.load_view)
         getFailNumber(dao)
 
         context = this
@@ -105,7 +105,10 @@ class MainActivity : AppCompatActivity() {
         //gui lai all notify bi fail
         val btnSendAll = findViewById<Button>(R.id.btn_Send_all)
         btnSendAll.setOnClickListener {
+          //  load.visibility = View.VISIBLE
             lifecycleScope.launch(Dispatchers.IO){
+
+
                 val list = dao.getNotificationFailPost("false")
                 list.forEach {
                     val notificationPost = NotificationAPI(
@@ -132,15 +135,20 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    getFailNumber(dao)
+
                 }
+                getFailNumber(dao)
                 val listNew = dao.getAll()
                 val listNoti = covertModel(listNew)
                 withContext(Dispatchers.Main){
                     adapter.addAll(listNoti)
                 }
+               // load.visibility = View.GONE
+//                withContext(Dispatchers.Main){
+//                    progress.visibility = View.GONE
+//                }
             }
-
+           // load.visibility = View.GONE
         }
     }
 

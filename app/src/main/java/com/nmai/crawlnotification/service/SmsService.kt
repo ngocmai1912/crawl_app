@@ -15,6 +15,7 @@ import com.nmai.crawlnotification.repository.NotificationDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class SmsService : Service() {
@@ -100,7 +101,9 @@ class SmsService : Service() {
                     }
                 }catch (e: Exception){
                     notification.checkPush = "false"
-
+                    withContext(Dispatchers.Main){
+                        APIRequest.postNotificationWithFail(appName,createTime,this@SmsService)
+                    }
                     Timber.d("post fail sms server")
                 }
                 senBroadcastNotification(notification)

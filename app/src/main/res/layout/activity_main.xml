@@ -5,6 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <RelativeLayout
+        android:id="@+id/load_view"
+        android:visibility="gone"
+        android:elevation="4dp"
+        android:clickable="true"
+        android:background="#80000000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/tool_bar"
         android:layout_width="match_parent"
@@ -47,7 +60,7 @@
                 android:id="@+id/tv_number_notify_fail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/notification_fail"
+                android:text="Notification fail: "
                 android:textColor="#FFFFFF"
                 android:textSize="15sp" />
 
