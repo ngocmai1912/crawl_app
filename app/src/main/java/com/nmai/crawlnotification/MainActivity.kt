@@ -12,10 +12,14 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,9 +44,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tv : TextView
     private lateinit var recy : RecyclerView
     private lateinit var adapter : NotificationAdapter
+    private lateinit var tvNumberFail : TextView
     companion object{
         var context : Context? = null
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +62,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
+        tvNumberFail = findViewById(R.id.number_fail)
+
+        getFailNumber(dao)
 
         context = this
         // set listener for sms receive
@@ -123,6 +132,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    getFailNumber(dao)
                 }
                 val listNew = dao.getAll()
                 val listNoti = covertModel(listNew)
@@ -130,6 +140,7 @@ class MainActivity : AppCompatActivity() {
                     adapter.addAll(listNoti)
                 }
             }
+
         }
     }
 
@@ -154,6 +165,12 @@ class MainActivity : AppCompatActivity() {
                 content!!, check
             )
             adapter.add(tmp)
+            lifecycleScope.launch(Dispatchers.IO){
+                val dao = NotificationDatabase.getInstance(context).notificationDao()
+                withContext(Dispatchers.Main){
+                    getFailNumber(dao)
+                }
+            }
         }
 
     }
@@ -194,7 +211,6 @@ class MainActivity : AppCompatActivity() {
                 notificationDB.title,
                 notificationDB.content
             )
-
             try {
                 val isSuccess =  APIRequest.postNotification(notificationPost)
                 if (isSuccess == 200) {
@@ -218,9 +234,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-
         }
+        getFailNumber(dao)
+    }
 
+    private fun getFailNumber(dao:NotificationDao){
+        lifecycleScope.launch(Dispatchers.IO){
+            val sizeList = dao.getCount()
+            withContext(Dispatchers.Main){
+                tvNumberFail.text = sizeList.toString()
+            }
+        }
     }
 
     // set permission
@@ -228,8 +252,7 @@ class MainActivity : AppCompatActivity() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
                 Manifest.permission.READ_SMS
-            )
-        ) {
+            )) {
         }
         ActivityCompat.requestPermissions(
             this,

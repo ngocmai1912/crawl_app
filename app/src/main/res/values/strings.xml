@@ -11,6 +11,8 @@
     <string name="title">Title</string>
     <string name="content">Content</string>
     <string name="name_app">Crawl Notification</string>
-    <string name="send_again">Send again</string>
+    <string name="send_again">Send all</string>
+    <string name="notification_fail">Notification fail: </string>
+    <string name="_0">0</string>
 
 </resources>

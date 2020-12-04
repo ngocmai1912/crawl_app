@@ -6,11 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="@color/colorPrimary"
         android:id="@+id/tool_bar"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
         <TextView
             android:id="@+id/tv_crawl_notification"
             android:layout_width="wrap_content"
@@ -27,11 +27,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="#FFFFFF"
+            android:layout_marginRight="15dp"
             android:text="@string/send_again"
-            app:layout_constraintBottom_toBottomOf="@id/tool_bar"
             app:layout_constraintRight_toRightOf="@id/tool_bar"
             app:layout_constraintTop_toTopOf="@id/tool_bar" />
+
+        <LinearLayout
+            android:id="@+id/view_number_fail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/btn_Send_all"
+            app:layout_constraintRight_toRightOf="@id/btn_Send_all"
+            app:layout_constraintTop_toBottomOf="@id/btn_Send_all">
+
+            <TextView
+                android:id="@+id/tv_number_notify_fail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notification_fail"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/number_fail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_0"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_notification"
         android:layout_width="match_parent"
