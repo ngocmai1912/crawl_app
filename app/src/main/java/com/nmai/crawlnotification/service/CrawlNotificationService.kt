@@ -43,7 +43,7 @@ class CrawlNotificationService : NotificationListenerService() {
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
-        if (nameAppCrawl != applicationName && appBundle != MainActivity.PACKAGE_NAME_SMS ){
+        if (nameAppCrawl != applicationName){
             val postNotifi = NotificationAPI(
                 applicationName,
                 appBundle,

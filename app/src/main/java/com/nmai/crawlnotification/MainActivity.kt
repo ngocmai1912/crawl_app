@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter : NotificationAdapter
     companion object{
         var context : Context? = null
-        var PACKAGE_NAME_SMS : String? = null
     }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,10 +55,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
-        PACKAGE_NAME_SMS = Settings.Secure.getString(
-            contentResolver,
-            "sms_default_application"
-        )
+
         context = this
         // set listener for sms receive
         //SmsReceiveListener.bindListener(this)
@@ -203,69 +199,6 @@ class MainActivity : AppCompatActivity() {
             1
         )
     }
-
-    // nhan du lieu tu broadreceive
-//    override fun messageReceived(
-//        appName: String,
-//        appBundle: String,
-//        createTime: String,
-//        title: String,
-//        content: String
-//    ) {
-//        val defaultApplication = Settings.Secure.getString(
-//            contentResolver,
-//            "sms_default_application"
-//        )
-//        var check = true
-//        val notificationAPI = NotificationAPI(appName, PACKAGE_NAME_SMS!!,createTime,title,content)
-//        lifecycleScope.launch(Dispatchers.IO){
-//            val dao = NotificationDatabase.getInstance(application).notificationDao()
-//            try {
-//                val isSuccess = APIRequest.postNotification(notificationAPI)
-//                if (isSuccess == 200) {
-//                    val notificationDao = Noti(
-//                        _id = null,
-//                        appName = appName,
-//                        appBundle = PACKAGE_NAME_SMS!!,
-//                        createTime = createTime,
-//                        title = title,
-//                        content = content,
-//                        checkPush = "true"
-//                    )
-//                    if(dao.getNotificationWithTime(createTime) == null)
-//                        dao.insert(notificationDao)
-//
-//                    Timber.d("post sms  Success!!")
-//                }
-//            }catch (e:Exception){
-//                val notificationDao = Noti(
-//                    _id = null,
-//                    appName = appName,
-//                    appBundle = PACKAGE_NAME_SMS!!,
-//                    createTime = createTime,
-//                    title = title,
-//                    content = content,
-//                    checkPush = "false"
-//                )
-//                if(dao.getNotificationWithTime(createTime) == null)
-//                    dao.insert(notificationDao)
-//                check = false
-//                Timber.d("post fail sms server")
-//            }
-//            withContext(Dispatchers.Main){
-//                adapter.add(
-//                    NotificationData(
-//                        appName = appName,
-//                        appBundle = PACKAGE_NAME_SMS!!,
-//                        createTime = createTime,
-//                        title = title,
-//                        content = content,
-//                        check
-//                    )
-//                )
-//            }
-//        }
-//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

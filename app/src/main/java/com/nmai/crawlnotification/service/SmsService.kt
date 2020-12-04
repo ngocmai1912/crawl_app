@@ -3,10 +3,7 @@ package com.nmai.crawlnotification.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.os.Binder
-import android.os.Build
-import android.os.CountDownTimer
-import android.os.IBinder
+import android.os.*
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -20,7 +17,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class SmsService : Service(), SmsListener {
+class SmsService : Service() {
     override fun onBind(p0: Intent?): IBinder? {
         return Binder()
     }
@@ -32,9 +29,10 @@ class SmsService : Service(), SmsListener {
     companion object {
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun startService(context: Context){
+        fun startService(context: Context, bundle: Bundle){
             val smsService : Intent = Intent(context, SmsService::class.java)
-            context.startService(smsService)
+            smsService.putExtra("notification",bundle)
+            context.startForegroundService(smsService)
 
             Timber.d("sms visible")
         }
@@ -48,6 +46,8 @@ class SmsService : Service(), SmsListener {
     //ko bao h stop
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        val bundle = intent?.getBundleExtra("notification")
 
         createNotificationChanel()
         val pendingIntent : PendingIntent =
@@ -63,10 +63,51 @@ class SmsService : Service(), SmsListener {
 
         Timber.d("send sms")
 
-        SmsReceiveListener.bindListener(this)
+//        SmsReceiveListener.bindListener(this)
         startForeground(ID_NOTIFICATION_CRAWL, notification)
 
-        val countDownTimer = object : CountDownTimer(10000, 1000) {
+        if(bundle != null){
+            val appName = bundle.getString("app_name")
+            val appBundle = bundle.getString("app_bundle")
+            val createTime = bundle.getString("create_time")
+            val title = bundle.getString("title")
+            val content = bundle.getString("content")
+            val notificationAPI = NotificationAPI(
+                appName!!,
+                appBundle!!,
+                createTime!!,
+                title!!,
+                content!!
+            )
+            GlobalScope.launch(Dispatchers.IO){
+                val dao = NotificationDatabase.getInstance(application).notificationDao()
+                var notification = Noti(
+                    _id = null,
+                    appName = appName,
+                    appBundle = appBundle,
+                    createTime = createTime,
+                    title = title,
+                    content = content,
+                    checkPush = ""
+                )
+                try {
+                    val isSuccess = APIRequest.postNotification(notificationAPI)
+
+                    if (isSuccess == 200) {
+                        notification.checkPush = "true"
+                        Timber.d("post sms  Success!!")
+                    }
+                }catch (e: Exception){
+                    notification.checkPush = "false"
+
+                    Timber.d("post fail sms server")
+                }
+                senBroadcastNotification(notification)
+                dao.insert(notification)
+            }
+        }
+
+        val countDownTimer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Timber.d("Countdown seconds remaining:  ${millisUntilFinished / 1000}" )
             }
@@ -78,7 +119,7 @@ class SmsService : Service(), SmsListener {
         }
 
         countDownTimer.start()
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun createNotificationChanel(){
@@ -94,54 +135,54 @@ class SmsService : Service(), SmsListener {
         }
     }
 
-    override fun messageReceived(
-        appName: String,
-        appBundle: String,
-        createTime: String,
-        title: String,
-        content: String
-    ) {
-        val defaultApplication = Settings.Secure.getString(
-            contentResolver,
-            "sms_default_application"
-        )
-        var check = true
-        val notificationAPI = NotificationAPI(
-            appName,
-            MainActivity.PACKAGE_NAME_SMS!!,
-            createTime,
-            title,
-            content
-        )
-        GlobalScope.launch(Dispatchers.IO){
-            val dao = NotificationDatabase.getInstance(application).notificationDao()
-            var notification = Noti(
-                _id = null,
-                appName = appName,
-                appBundle = MainActivity.PACKAGE_NAME_SMS!!,
-                createTime = createTime,
-                title = title,
-                content = content,
-                checkPush = "true"
-            )
-            try {
-                val isSuccess = APIRequest.postNotification(notificationAPI)
-
-                if (isSuccess == 200) {
-                    dao.insert(notification)
-                    senBroadcastNotification(notification)
-                    Timber.d("post sms  Success!!")
-                }
-            }catch (e: Exception){
-                notification.checkPush = "false"
-                dao.insert(notification)
-                senBroadcastNotification(notification)
-
-                check = false
-                Timber.d("post fail sms server")
-            }
-        }
-    }
+//    override fun messageReceived(
+//        appName: String,
+//        appBundle: String,
+//        createTime: String,
+//        title: String,
+//        content: String
+//    ) {
+//        val defaultApplication = Settings.Secure.getString(
+//            contentResolver,
+//            "sms_default_application"
+//        )
+//        var check = true
+//        val notificationAPI = NotificationAPI(
+//            appName,
+//            MainActivity.PACKAGE_NAME_SMS!!,
+//            createTime,
+//            title,
+//            content
+//        )
+//        GlobalScope.launch(Dispatchers.IO){
+//            val dao = NotificationDatabase.getInstance(application).notificationDao()
+//            var notification = Noti(
+//                _id = null,
+//                appName = appName,
+//                appBundle = MainActivity.PACKAGE_NAME_SMS!!,
+//                createTime = createTime,
+//                title = title,
+//                content = content,
+//                checkPush = "true"
+//            )
+//            try {
+//                val isSuccess = APIRequest.postNotification(notificationAPI)
+//
+//                if (isSuccess == 200) {
+//                    dao.insert(notification)
+//                    senBroadcastNotification(notification)
+//                    Timber.d("post sms  Success!!")
+//                }
+//            }catch (e: Exception){
+//                notification.checkPush = "false"
+//                dao.insert(notification)
+//                senBroadcastNotification(notification)
+//
+//                check = false
+//                Timber.d("post fail sms server")
+//            }
+//        }
+//    }
 
     private fun senBroadcastNotification(notification: Noti){
         val intent = Intent("MessageReceiver")
