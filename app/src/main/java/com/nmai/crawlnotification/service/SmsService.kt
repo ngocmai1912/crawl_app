@@ -29,19 +29,17 @@ class SmsService : Service() {
 
     companion object {
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun startService(context: Context, bundle: Bundle){
             val smsService : Intent = Intent(context, SmsService::class.java)
             smsService.putExtra("notification",bundle)
-            //context.startForegroundService(smsService)
-            context.startService(smsService)
-
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                // https://stackoverflow.com/questions/45525214/are-there-any-benefits-to-using-context-startforegroundserviceintent-instead-o
+                context.startForegroundService(smsService)
+            }
+            else {
+                context.startService(smsService)
+            }
             Timber.d("sms visible")
-        }
-
-        fun stopService(context: Context){
-            val smsService : Intent = Intent(context, SmsService::class.java)
-            context.stopService(smsService)
         }
 
     }
@@ -138,55 +136,6 @@ class SmsService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
     }
-
-//    override fun messageReceived(
-//        appName: String,
-//        appBundle: String,
-//        createTime: String,
-//        title: String,
-//        content: String
-//    ) {
-//        val defaultApplication = Settings.Secure.getString(
-//            contentResolver,
-//            "sms_default_application"
-//        )
-//        var check = true
-//        val notificationAPI = NotificationAPI(
-//            appName,
-//            MainActivity.PACKAGE_NAME_SMS!!,
-//            createTime,
-//            title,
-//            content
-//        )
-//        GlobalScope.launch(Dispatchers.IO){
-//            val dao = NotificationDatabase.getInstance(application).notificationDao()
-//            var notification = Noti(
-//                _id = null,
-//                appName = appName,
-//                appBundle = MainActivity.PACKAGE_NAME_SMS!!,
-//                createTime = createTime,
-//                title = title,
-//                content = content,
-//                checkPush = "true"
-//            )
-//            try {
-//                val isSuccess = APIRequest.postNotification(notificationAPI)
-//
-//                if (isSuccess == 200) {
-//                    dao.insert(notification)
-//                    senBroadcastNotification(notification)
-//                    Timber.d("post sms  Success!!")
-//                }
-//            }catch (e: Exception){
-//                notification.checkPush = "false"
-//                dao.insert(notification)
-//                senBroadcastNotification(notification)
-//
-//                check = false
-//                Timber.d("post fail sms server")
-//            }
-//        }
-//    }
 
     private fun senBroadcastNotification(notification: Noti){
         val intent = Intent("MessageReceiver")

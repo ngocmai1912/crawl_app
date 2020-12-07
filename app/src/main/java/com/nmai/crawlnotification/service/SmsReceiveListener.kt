@@ -46,15 +46,7 @@ class SmsReceiveListener : BroadcastReceiver() {
                     (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
                 val appBundle = PACKAGE_NAME_SMS
 
-//                listener?.let{
-//                    it.messageReceived(
-//                        "Tin nhắn",
-//                        "sms",
-//                        createTime,
-//                        title,
-//                        content
-//                    )
-//                }
+
 
                 val bundle = Bundle()
                 bundle.putString("app_name",appName)
@@ -62,7 +54,6 @@ class SmsReceiveListener : BroadcastReceiver() {
                 bundle.putString("create_time",createTime)
                 bundle.putString("title",title)
                 bundle.putString("content",content)
-              //  Log.d("1ghyughj", "${appBundle} 1 ${appName.toString()} 2 ${ai?.packageName.toString()}")
                 if (context != null) {
                     SmsService.startService(context,bundle)
                 }
