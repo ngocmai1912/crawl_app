@@ -7,24 +7,24 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.Telephony
 import android.telephony.SmsMessage
-import android.util.Log
 import androidx.annotation.RequiresApi
 import timber.log.Timber
 
 
 class SmsReceiveListener : BroadcastReceiver() {
 
-//    companion object{
-//        var listener : SmsListener? = null
-//        fun bindListener(l: SmsListener){
-//            listener = l
-//        }
-//    }
     // lay data tu tin nhan moi nhan
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context?, intent: Intent) {
         if (intent.action.equals("android.provider.Telephony.SMS_RECEIVED")){
+
+            val PACKAGE_NAME_SMS = Settings.Secure.getString(
+                context?.contentResolver,
+                "sms_default_application"
+            )
+
             val data = intent.extras
             val pdus = data!!["pdus"] as Array<*>?
             for (i in pdus!!.indices) {
@@ -36,21 +36,21 @@ class SmsReceiveListener : BroadcastReceiver() {
                 val createTime = smsMessage.timestampMillis.toString()
                 val content = smsMessage.messageBody.toString()
 
-                val PACKAGE_NAME_SMS = Settings.Secure.getString(
-                    context?.contentResolver,
-                    "sms_default_application"
-                )
-                val pm = context?.applicationContext?.packageManager
-                val ai: ApplicationInfo? = pm?.getApplicationInfo(PACKAGE_NAME_SMS, 0)
-                val appName =
+
+                val appName = Telephony.Sms.getDefaultSmsPackage(context)
+                var appBundle = "unknown"
+                if(PACKAGE_NAME_SMS != null ){
+                    appBundle = PACKAGE_NAME_SMS
+                }
+                val pm = context?.packageManager
+                val ai: ApplicationInfo? = pm?.getApplicationInfo(appName, 0)
+                val applicationName =
                     (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
-                val appBundle = PACKAGE_NAME_SMS
-
-
+                Timber.d("test package $applicationName")
 
                 val bundle = Bundle()
-                bundle.putString("app_name",appName)
-                bundle.putString("app_bundle",appBundle)
+                bundle.putString("app_name",applicationName)
+                bundle.putString("app_bundle", appName)
                 bundle.putString("create_time",createTime)
                 bundle.putString("title",title)
                 bundle.putString("content",content)

@@ -37,7 +37,7 @@ class SmsService : Service() {
                 context.startForegroundService(smsService)
             }
             else {
-                context.startService(smsService)
+               context.startService(smsService)
             }
             Timber.d("sms visible")
         }
@@ -65,6 +65,7 @@ class SmsService : Service() {
 
 //        SmsReceiveListener.bindListener(this)
         startForeground(ID_NOTIFICATION_CRAWL, notification)
+
 
         if(bundle != null){
             val appName = bundle.getString("app_name")

